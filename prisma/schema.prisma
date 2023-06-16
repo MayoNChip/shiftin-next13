@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}
+
+model ShiftType {
+  id        Int      @id @unique @default(autoincrement())
+  shiftType String
+  startTime DateTime
+  endTime   DateTime
+  shift     Shift[]
+}
+
+model Shift {
+  id          String           @id @default(cuid())
+  shiftType   ShiftType?       @relation(fields: [shiftTypeId], references: [id])
+  shiftTypeId Int?
+  workDay     WorkDay?         @relation(fields: [workDayId], references: [id])
+  workDayId   Int?
+  employees   EmployeeShifts[]
+}
+
+model WorkDay {
+  id     Int     @id @default(autoincrement())
+  day    String  @unique
+  shifts Shift[]
+  // week   Int
+  // month  String
+  active Boolean
+}
+
+model Employee {
+  id            String           @id @default(cuid())
+  // shift     Shift?   @relation(fields: [shiftId], references: [id])
+  // shiftId   String?
+  firstName     String
+  lastName      String
+  role          Role?            @relation(fields: [roleId], references: [id])
+  roleId        Int?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  employeeShift EmployeeShifts[]
+}
+
+model EmployeeShifts {
+  id         String   @id @default(cuid())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String
+  shift      Shift    @relation(fields: [shiftId], references: [id])
+  shiftId    String
+}
+
+model Role {
+  id       Int        @id @default(autoincrement())
+  roleName String
+  employee Employee[]
+}
