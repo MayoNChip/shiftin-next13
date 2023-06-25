@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import SignUpDialog from "@/components/MyDialog";
 
 export default function Home() {
 	return (

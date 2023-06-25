@@ -1,17 +1,8 @@
-import {
-	Button,
-	Checkbox,
-	FormControl,
-	FormControlLabel,
-	TextField,
-} from "@mui/material";
 import { ShiftType, WorkDay } from "@prisma/client";
 import prisma from "@/utils/PrismaClient";
-import ShiftTypes from "@/app/settings/SettingsShiftsStep";
 import { revalidatePath } from "next/cache";
-import { useMultiStepForm } from "@/hooks/useMultiStepForm";
 import SettingsFrom from "./SettingsForm";
-import SettingsFromStep from "./SettingsWeekStep";
+import { ShiftTypeInterface } from "@/commonTypes";
 
 // type WeekFormType = typeof weekFormData | null;
 type WeekFormType = {
@@ -23,14 +14,15 @@ export default async function index() {
 	const workDays = await prisma.workDay.findMany();
 	const shiftsTypes = await prisma.shiftType.findMany();
 
-	const handleAddShiftType = async (shiftType: ShiftType) => {
+	const handleAddShiftType = async (shiftType: ShiftTypeInterface) => {
 		"use server";
 
-		await prisma.shiftType.create({
+		const res = await prisma.shiftType.create({
 			data: {
 				...shiftType,
 			},
 		});
+		console.log("res", res);
 		revalidatePath("/settings");
 	};
 

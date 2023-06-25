@@ -5,16 +5,25 @@ export function useMultiStepForm(steps: ReactElement[]) {
 	const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
 	const back = () => {
-		if (currentStepIndex === 0) {
-			return;
-		}
-		setCurrentStepIndex(currentStepIndex - 1);
+		setCurrentStepIndex((prevIndex) => {
+			if (currentStepIndex <= 0) {
+				console.log("first step");
+				return prevIndex;
+			} else return prevIndex - 1;
+		});
 	};
 
 	const next = () => {
-		if (currentStepIndex == steps.length - 1) return currentStepIndex;
-		setCurrentStepIndex(currentStepIndex + 1);
+		setCurrentStepIndex((prevIndex) => {
+			if (prevIndex >= steps.length - 1) {
+				console.log("last step");
+				return prevIndex;
+			} else {
+				return prevIndex + 1;
+			}
+		});
 	};
+
 	const goToStep = (index: number) => {
 		setCurrentStepIndex(index);
 	};
@@ -24,6 +33,7 @@ export function useMultiStepForm(steps: ReactElement[]) {
 		setCurrentStepIndex,
 		steps,
 		step: steps[currentStepIndex],
+		isLastStep: currentStepIndex === steps.length - 1,
 		next,
 		back,
 		goToStep,

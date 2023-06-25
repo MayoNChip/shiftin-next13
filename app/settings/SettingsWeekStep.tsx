@@ -2,11 +2,15 @@
 
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { ShiftType, WorkDay } from "@prisma/client";
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useState } from "react";
+import FromWrapper from "./FromWrapper";
 
 interface Props {
-	shiftsTypes: ShiftType[];
-	handleAddShiftType: (shiftType: ShiftType) => void;
+	handleSubmitForm: (
+		e: FormEvent<HTMLDivElement>,
+		shiftType: ShiftType,
+		next: () => void
+	) => void;
 }
 
 const weekFormData = {
@@ -71,33 +75,32 @@ function SettingsWeekStep() {
 		setWeekDays([...workDaysArray]);
 	};
 	return (
-		<div className="flex flex-col w-full">
-			<h1 className="px-4 text-xl font-semibold ">Define days of work</h1>
-			{weekDays &&
-				weekDays.map((day, idx) => {
-					return (
-						<div
-							className="flex flex-col items-center w-full ml-10"
-							key={day.day}
-						>
-							<div>{idx}</div>
-							<div className="flex items-center w-full">
-								<FormControlLabel
-									control={
-										<Checkbox
-											checked={day.active}
-											name={day.day.toUpperCase()}
-											value={idx}
-											onChange={handleWeekChange}
-										/>
-									}
-									label={day.day.toUpperCase()}
-								/>
+		<FromWrapper title="Work Week Setup">
+			<div className="flex flex-col w-full">
+				{/* <h1 className="px-4 text-xl font-semibold ">Define days of work</h1> */}
+				{weekDays &&
+					weekDays.map((day, idx) => {
+						return (
+							<div className="flex items-center w-full ml-10" key={day.day}>
+								{/* <div>{idx}</div> */}
+								<div className="flex items-center w-full">
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={day.active}
+												name={day.day.toUpperCase()}
+												value={idx}
+												onChange={handleWeekChange}
+											/>
+										}
+										label={day.day.toUpperCase()}
+									/>
+								</div>
 							</div>
-						</div>
-					);
-				})}
-		</div>
+						);
+					})}
+			</div>
+		</FromWrapper>
 	);
 }
 

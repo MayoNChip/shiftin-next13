@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
-import { useTheme } from "@/utils/useTheme";
+import { NextAuthProvider } from "./providers";
 
 export const metadata = {
 	title: "Shiftin",
@@ -13,12 +13,12 @@ export default function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const { setTheme, theme } = useTheme();
+	// const { setTheme, theme } = useTheme();
 	return (
 		<html lang="en">
-			<body className={theme}>
+			<body>
 				<Navbar />
-				{children}
+				<NextAuthProvider>{children}</NextAuthProvider>
 			</body>
 		</html>
 	);
