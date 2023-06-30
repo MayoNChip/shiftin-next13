@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -9,22 +8,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 
-interface Props {
-	children: ReactNode;
-	header: string;
-	buttonText?: string;
-}
-
-function MyDialog({ children, buttonText, header }: Props) {
+function MyDialog() {
 	return (
 		<Dialog>
 			<DialogTrigger>
-				<Button>{buttonText ?? header}</Button>
+				<Button>Sign Up</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{header}</DialogTitle>
-					<DialogDescription>{children}</DialogDescription>
+					<DialogTitle>Welcome!</DialogTitle>
+					<DialogDescription>sign up form</DialogDescription>
 				</DialogHeader>
 			</DialogContent>
 		</Dialog>

@@ -28,14 +28,11 @@ export default async function Navbar() {
 					<LogoutButton />
 				</div>
 			) : (
-				<>
+				<div>
 					<LoginButton />
-					<MyDialog header="Sign Up">
-						<SignUpForm />
-					</MyDialog>
-
+					{/* <MyDialog /> */}
 					{/* <RegisterButton /> */}
-				</>
+				</div>
 			)}
 		</div>
 	);

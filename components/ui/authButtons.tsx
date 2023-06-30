@@ -6,7 +6,9 @@ import { Button } from "./button";
 export const LoginButton = () => {
 	return (
 		<>
-			<Button onClick={() => signIn()}>Sign In</Button>
+			<Button onClick={() => signIn("google", { callbackUrl: "/welcome" })}>
+				Sign In
+			</Button>
 		</>
 	);
 };
