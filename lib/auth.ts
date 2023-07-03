@@ -9,21 +9,21 @@ export const authOptions: NextAuthOptions = {
 		strategy: "jwt",
 	},
 	providers: [
-		CredentialsProvider({
-			name: "Sign in",
-			credentials: {
-				email: {
-					label: "Email",
-					type: "email",
-					placeholder: "example@example.com",
-				},
-				password: { label: "Password", type: "password" },
-			},
-			async authorize(credentials) {
-				const user = { id: "1", name: "Admin", email: "admin@admin.com" };
-				return user;
-			},
-		}),
+		// CredentialsProvider({
+		// 	name: "Sign in",
+		// 	credentials: {
+		// 		email: {
+		// 			label: "Email",
+		// 			type: "email",
+		// 			placeholder: "example@example.com",
+		// 		},
+		// 		password: { label: "Password", type: "password" },
+		// 	},
+		// 	async authorize(credentials) {
+		// 		const user = { id: "1", name: "Admin", email: "admin@admin.com" };
+		// 		return user;
+		// 	},
+		// }),
 		GoogleProvider({
 			name: "Google",
 			clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -72,40 +72,11 @@ export const authOptions: NextAuthOptions = {
 					email: session.user?.email!,
 				},
 			});
-			console.log("user", userData);
-			// const newSession = {
-			// 	session: {
-			// 		...session,
-			// 		user: { ...user, configured: userData?.configured },
-			// 	},
-			// };
 
 			if (!userData) return session;
-			session.user = userData;
-
+			session.user = { ...userData };
 			return session;
-
-			// return session;
 		},
-		// async session({ session, token, user }) {
-		// 	if (!session) return false;
-
-		// 	const userData = await prisma.user.findUnique({
-		// 		where: {
-		// 			email: user.email,
-		// 		},
-		// 	});
-
-		// 	return {
-		// 		session: {
-		// 			user: {
-		// 				...user,
-		// 				configured: userData?.configured,
-		// 			},
-		// 		},
-		// 	};
-		// 	// return token
-		// },
 	},
 	pages: {
 		// 	signIn: "/auth/signin",
