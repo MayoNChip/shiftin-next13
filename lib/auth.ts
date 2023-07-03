@@ -1,4 +1,5 @@
 import prisma from "@/utils/PrismaClient";
+import { constants } from "buffer";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -64,6 +65,47 @@ export const authOptions: NextAuthOptions = {
 			}
 			return true;
 		},
+		async session({ session, user }) {
+			console.log("user from sign in", user);
+			const userData = await prisma.user.findUnique({
+				where: {
+					email: session.user?.email!,
+				},
+			});
+			console.log("user", userData);
+			// const newSession = {
+			// 	session: {
+			// 		...session,
+			// 		user: { ...user, configured: userData?.configured },
+			// 	},
+			// };
+
+			if (!userData) return session;
+			session.user = userData;
+
+			return session;
+
+			// return session;
+		},
+		// async session({ session, token, user }) {
+		// 	if (!session) return false;
+
+		// 	const userData = await prisma.user.findUnique({
+		// 		where: {
+		// 			email: user.email,
+		// 		},
+		// 	});
+
+		// 	return {
+		// 		session: {
+		// 			user: {
+		// 				...user,
+		// 				configured: userData?.configured,
+		// 			},
+		// 		},
+		// 	};
+		// 	// return token
+		// },
 	},
 	pages: {
 		// 	signIn: "/auth/signin",
