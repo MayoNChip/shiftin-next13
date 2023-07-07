@@ -2,35 +2,33 @@
 
 import { signIn, signOut } from "next-auth/react";
 import { Button } from "./button";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export const LoginButton = () => {
-	return (
-		<>
-			<Button onClick={() => signIn("google", { callbackUrl: "/welcome" })}>
-				Sign In
-			</Button>
-		</>
-	);
+  return (
+    <>
+      <Link href={"/signin"}>
+        <Button>Sign In</Button>
+      </Link>
+    </>
+  );
 };
 
 export const LogoutButton = () => {
-	return (
-		<>
-			<Button onClick={() => signOut()}>Sign Out</Button>
-		</>
-	);
+  return (
+    <>
+      <Button onClick={() => signOut()}>Sign Out</Button>
+    </>
+  );
 };
 
 export const RegisterButton = () => {
-	return (
-		<>
-			<Button
-				onClick={() => {
-					console.log("Register");
-				}}
-			>
-				Register
-			</Button>
-		</>
-	);
+  return (
+    <>
+      <Link href={"/signup"}>
+        <Button>Sign Up</Button>
+      </Link>
+    </>
+  );
 };
