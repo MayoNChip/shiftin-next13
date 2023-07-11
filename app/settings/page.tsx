@@ -3,6 +3,9 @@ import prisma from "@/utils/PrismaClient";
 import { revalidatePath } from "next/cache";
 import SettingsFrom from "./SettingsForm";
 import { ShiftTypeInterface } from "@/commonTypes";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 // type WeekFormType = typeof weekFormData | null;
 type WeekFormType = {
@@ -13,6 +16,18 @@ type WeekFormType = {
 export default async function index() {
 	const workDays = await prisma.workDay.findMany();
 	const shiftsTypes = await prisma.shiftType.findMany();
+	const session = await getServerSession(authOptions);
+
+	if (!session || !session.user?.configured) {
+		redirect("/");
+		// return (
+		// 	<div className="flex items-center justify-center w-full min-h-screen">
+		// 		<h1 className="text-3xl text-bold">
+		// 			Please sign in to access this page
+		// 		</h1>
+		// 	</div>
+		// );
+	}
 
 	const handleAddShiftType = async (shiftType: ShiftTypeInterface) => {
 		"use server";
