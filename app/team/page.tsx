@@ -8,15 +8,16 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function team() {
-	const employeeList = await prisma.employee.findMany();
 	const session = await getServerSession(authOptions);
 
-	if (!session || !session.user?.configured) {
-		// redirect("/");
-		<div className="flex items-center justify-center w-full min-h-screen">
-			<h1 className="text-3xl text-bold">Please sign in to access this page</h1>
-		</div>;
+	if (!session?.user?.configured) {
+		redirect("/signin?callbackUrl=/team");
+		// <div className="flex items-center justify-center w-full min-h-screen">
+		// 	<h1 className="text-3xl text-bold">Please sign in to access this page</h1>
+		// </div>;
 	}
+
+	const employeeList = await prisma.employee.findMany();
 
 	const createEmployee = async (employee: {
 		firstName: string;
