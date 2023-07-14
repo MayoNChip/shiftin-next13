@@ -1,11 +1,12 @@
 import AddEmployee from "@/components/AddEmployee";
-import prisma from "@/utils/PrismaClient";
+
 import { revalidatePath } from "next/cache";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 
 export default async function team() {
 	const session = await getServerSession(authOptions);

@@ -1,13 +1,11 @@
-import { ShiftType, WorkDay } from "@prisma/client";
-import prisma from "@/utils/PrismaClient";
+import { WorkDay } from "@prisma/client";
+
 import { revalidatePath } from "next/cache";
 import SettingsFrom from "./SettingsForm";
 import { ShiftTypeInterface } from "@/commonTypes";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import axios from "axios";
-import { handleAddShiftType } from "./controller";
+import { prisma } from "@/lib/prisma";
 
 // type WeekFormType = typeof weekFormData | null;
 type WeekFormType = {
@@ -18,17 +16,19 @@ type WeekFormType = {
 export default async function index() {
 	const session = await getServerSession(authOptions);
 
-	if (!session?.user?.configured) {
-		redirect("/signin?callbackURL=/settings");
-		// <div className="flex items-center justify-center w-full min-h-screen">
-		// 	<h1 className="text-3xl text-bold">Please sign in to access this page</h1>
-		// </div>;
-	}
+	// if (!session?.user?.configured) {
+	// 	redirect("/signin?callbackURL=/settings");
+	// 	// <div className="flex items-center justify-center w-full min-h-screen">
+	// 	// 	<h1 className="text-3xl text-bold">Please sign in to access this page</h1>
+	// 	// </div>;
+	// }
 	const workDays = await prisma.workDay.findMany();
 	const shiftsTypes = await prisma.shiftType.findMany();
 
 	const handleAddShiftType = async (shiftType: ShiftTypeInterface) => {
 		"use server";
+		console.log(shiftType);
+		if (!shiftType.shiftType) return;
 
 		const res = await prisma.shiftType.create({
 			data: {

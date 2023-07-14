@@ -4,60 +4,64 @@ import { Checkbox, FormControlLabel } from "@mui/material";
 import { ShiftType, WorkDay } from "@prisma/client";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import FromWrapper from "./FromWrapper";
+import { InitialFormDataType } from "@/commonTypes";
 
-interface Props {
-	handleSubmitForm: (
-		e: FormEvent<HTMLDivElement>,
-		shiftType: ShiftType,
-		next: () => void
-	) => void;
-}
+// interface Props {
+// 	// handleSubmitForm: (
+// 	// 	e: FormEvent<HTMLDivElement>,
+// 	// 	shiftType: ShiftType,
+// 	// 	next: () => void
+// 	// ) => void;
 
-const weekFormData = {
-	monthWeek: { week: 0, month: "january" },
-	weekWorkDays: [
-		{
-			id: 1,
-			day: "sunday",
-			active: false,
-		},
-		{
-			id: 2,
-			day: "monday",
-			active: false,
-		},
-		{
-			id: 3,
-			day: "tuesday",
-			active: false,
-		},
-		{
-			id: 4,
-			day: "wednesday",
-			active: false,
-		},
-		{
-			id: 5,
-			day: "thursday",
-			active: false,
-		},
-		{
-			id: 6,
-			day: "friday",
-			active: false,
-		},
-		{
-			id: 7,
-			day: "saturday",
-			active: false,
-		},
-	],
+// }
+
+type Props = InitialFormDataType & {
+	ChangeWeekFormData: (newWeek: InitialFormDataType["weekWorkDays"]) => void;
 };
 
-function SettingsWeekStep() {
-	const [weekDays, setWeekDays] = useState<WorkDay[]>(
-		weekFormData.weekWorkDays
-	);
+// const weekFormData = {
+// 	monthWeek: { week: 0, month: "january" },
+// 	weekWorkDays: [
+// 		{
+// 			id: 1,
+// 			day: "sunday",
+// 			active: false,
+// 		},
+// 		{
+// 			id: 2,
+// 			day: "monday",
+// 			active: false,
+// 		},
+// 		{
+// 			id: 3,
+// 			day: "tuesday",
+// 			active: false,
+// 		},
+// 		{
+// 			id: 4,
+// 			day: "wednesday",
+// 			active: false,
+// 		},
+// 		{
+// 			id: 5,
+// 			day: "thursday",
+// 			active: false,
+// 		},
+// 		{
+// 			id: 6,
+// 			day: "friday",
+// 			active: false,
+// 		},
+// 		{
+// 			id: 7,
+// 			day: "saturday",
+// 			active: false,
+// 		},
+// 	],
+// };
+
+function SettingsWeekStep({ weekWorkDays, ChangeWeekFormData }: Props) {
+	const [weekDays, setWeekDays] = useState<WorkDay[]>(weekWorkDays);
 
 	const handleWeekChange = (e: ChangeEvent<HTMLInputElement>) => {
 		if (!weekDays) {
@@ -73,6 +77,7 @@ function SettingsWeekStep() {
 		}
 		console.log(workDaysArray);
 		setWeekDays([...workDaysArray]);
+		ChangeWeekFormData(workDaysArray);
 	};
 	return (
 		<FromWrapper title="Work Week Setup">

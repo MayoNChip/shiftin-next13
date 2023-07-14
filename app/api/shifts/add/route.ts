@@ -1,24 +1,25 @@
 import { ShiftTypeInterface } from "@/commonTypes";
-import prisma from "@/utils/PrismaClient";
+import { prisma } from "@/lib/prisma";
+
 import { NextRequest, NextResponse } from "next/server";
 
 type reqWithShiftType = NextRequest & {
-  body: ShiftTypeInterface;
+	body: ShiftTypeInterface;
 };
 
 export async function POST(req: reqWithShiftType) {
-  if (!req.body)
-    return NextResponse.json({ message: "No shift provided in body" });
+	if (!req.body)
+		return NextResponse.json({ message: "No shift provided in body" });
 
-  console.log(req.body);
-  const shiftToAdd: ShiftTypeInterface = await req.json();
+	console.log(req.body);
+	const shiftToAdd: ShiftTypeInterface = await req.json();
 
-  const res = await prisma.shiftType.create({
-    data: {
-      ...shiftToAdd,
-    },
-  });
+	const res = await prisma.shiftType.create({
+		data: {
+			...shiftToAdd,
+		},
+	});
 
-  console.log(res);
-  return NextResponse.json(res);
+	console.log(res);
+	return NextResponse.json(res);
 }
