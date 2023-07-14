@@ -1,6 +1,6 @@
 "use client";
 
-import { Employee } from "@prisma/client";
+import { Employee, ShiftType } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 
 // This type is used to define the shape of our data.
@@ -13,7 +13,7 @@ import { ColumnDef } from "@tanstack/react-table";
 //   role: "waiter" | "manager" | "bar"
 // };
 
-export const columns: ColumnDef<Employee>[] = [
+export const TeamColumns: ColumnDef<Employee>[] = [
   {
     accessorKey: "firstName",
     header: "First Name",
@@ -23,11 +23,26 @@ export const columns: ColumnDef<Employee>[] = [
     header: "Last Name",
   },
   {
-    accessorKey: "roleId",
+    accessorKey: "canWorkShiftTypes",
     header: "Role",
   },
   {
     accessorKey: "createdAt",
     header: "Created At",
+  },
+];
+
+export const ShiftTypesColumns: ColumnDef<ShiftType[]>[] = [
+  {
+    accessorKey: "shiftType",
+    header: "Shift Name",
+  },
+  {
+    accessorKey: "startTime",
+    header: "Start Time",
+  },
+  {
+    accessorKey: "endTime",
+    header: "End Time",
   },
 ];

@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -20,11 +21,12 @@ model User {
 }
 
 model ShiftType {
-  id        Int      @id @unique @default(autoincrement())
+  id        Int        @id @unique @default(autoincrement())
   shiftType String
   startTime DateTime
   endTime   DateTime
   shift     Shift[]
+  employee  Employee[]
 }
 
 model Shift {
@@ -46,16 +48,16 @@ model WorkDay {
 }
 
 model Employee {
-  id            String           @id @default(cuid())
+  id                String           @id @default(cuid())
   // shift     Shift?   @relation(fields: [shiftId], references: [id])
   // shiftId   String?
-  firstName     String
-  lastName      String
-  role          Role?            @relation(fields: [roleId], references: [id])
-  roleId        Int?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  employeeShift EmployeeShifts[]
+  firstName         String
+  lastName          String
+  shiftTypes        ShiftType        @relation(fields: [canWorkShiftTypes], references: [id])
+  canWorkShiftTypes Int
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  employeeShift     EmployeeShifts[]
 }
 
 model EmployeeShifts {
@@ -67,7 +69,7 @@ model EmployeeShifts {
 }
 
 model Role {
-  id       Int        @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   roleName String
-  employee Employee[]
+  // employee Employee[]
 }

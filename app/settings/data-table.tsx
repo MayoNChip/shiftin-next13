@@ -36,17 +36,17 @@ export function DataTable<TData, TValue>({
   return (
     <div className="rounded-md border self-center w-[800px] flex items-center">
       <Table>
-        {/* <TableHeader>
-          <div className="flex self-center p-2 w-max">
-            <h1 className="text-2xl font-semibold ">{title}</h1>
+        <TableHeader>
+          <div className="flex self-center w-full p-6 ">
+            <h1 className="text-2xl font-semibold">{title}</h1>
           </div>
-        </TableHeader> */}
+        </TableHeader>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id} className="w-[400px]">
+                  <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(

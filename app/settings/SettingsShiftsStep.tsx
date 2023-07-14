@@ -1,133 +1,107 @@
 "use client";
 
-import { Button, FormControl, FormGroup, TextField } from "@mui/material";
-import { Shift, ShiftType } from "@prisma/client";
-import React, { ChangeEvent, useState } from "react";
+import { Button } from "@mui/material";
+import React, { ChangeEvent, useMemo, useState } from "react";
 import FromWrapper from "./FromWrapper";
 import { useMultiStepForm } from "@/hooks/useMultiStepForm";
-
-// import { handleAddShiftType } from "./controller";
 import { InitialFormDataType, ShiftTypeInterface } from "@/commonTypes";
 import { Input } from "@/components/ui/input";
+import { DateTimePicker } from "./DateTimePicker";
+import { ShiftType } from "@prisma/client";
+import { DataTable } from "../team/data-table";
+import { ShiftTypesColumns } from "../team/columns";
 
 type Props = InitialFormDataType & {
-	shiftsTypes: ShiftType[];
-	handleAddShiftType: (shiftType: ShiftTypeInterface) => any;
+  shiftsTypes: ShiftType[];
+  handleAddShiftType: (shiftType: ShiftTypeInterface) => any;
 };
 
-function SettingsShiftsStep({
-	shiftsTypes,
-	handleAddShiftType,
-	shifts,
-}: Props) {
-	const { currentStepIndex, next, steps, step, back } = useMultiStepForm([]);
-	const [shiftType, setShiftType] = useState<InitialFormDataType["shifts"][0]>({
-		shiftType: "",
-		startTime: new Date(),
-		endTime: new Date(),
-	});
+function SettingsShiftsStep({ shiftsTypes, handleAddShiftType }: Props) {
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const { currentStepIndex, next, steps, step, back } = useMultiStepForm([]);
+  const [shiftType, setShiftType] = useState<InitialFormDataType["shifts"][0]>({
+    shiftType: "",
+    startTime: new Date(),
+    endTime: new Date(),
+  });
+  useMemo(() => {
+    const newShift = { ...shiftType, startTime: startDate, endTime: endDate };
+    setShiftType(newShift);
+  }, [startDate, endDate]);
+  // useMemo(() => {
+  //   const newShift = { ...shiftType, startTime: endDate };
+  //   setShiftType(newShift);
+  // }, [endDate]);
 
-	const handleShiftNameChange = async (e: ChangeEvent<HTMLInputElement>) => {
-		const newShift = { ...shiftType, shiftType: e.target.value };
-		setShiftType(newShift);
-	};
+  console.log(shiftType);
 
-	const handleStartTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const selectedTime = new Date(e.target.value);
-		console.log(e.target.value);
-		const newShift = { ...shiftType, startTime: selectedTime };
-		setShiftType(newShift);
-	};
-	const handleEndTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const selectedTime = new Date(e.target.value);
-		const newShift = { ...shiftType, endTime: selectedTime };
-		setShiftType(newShift);
-	};
-	return (
-		<FromWrapper title="Shifts Setup">
-			<div className="flex flex-col gap-4">
-				<FormGroup className="gap-6">
-					<div className="flex">
-						{/* <FormControl size="small" className="w-fit"> */}
-						{/* <TextField
-								label="Shift Name"
-								id="outlined-size-small"
-								variant="outlined"
-								size="small"
-								type="text"
-								className="w-[150px]"
-								value={shiftType.shiftType}
-								// onKeyUp={handleWeekNumberChange}
-								onChange={handleShiftNameChange}
-							/> */}
-						<label>Shift start time</label>
-						<Input
-							className="w-fit"
-							type="datetime-local"
-							value={shiftType.shiftType}
-							onChange={(e) => handleShiftNameChange(e)}
-						/>
-						{/* </FormControl> */}
-						<FormControl size="small" className="w-fit">
-							<TextField
-								id="outlined-size-small"
-								label="Start Time"
-								variant="outlined"
-								size="small"
-								type="datetime-local"
-								className="w-full"
-								value={shiftType.startTime}
-								// onKeyUp={handleWeekNumberChange}
-								onChange={handleStartTimeChange}
-							/>
-						</FormControl>
-						<label>Shift end time</label>
-						<Input
-							className="w-fit"
-							type="datetime-local"
-							value={shiftType.endTime.toUTCString()}
-							onChange={(e) => handleEndTimeChange(e)}
-						/>
-						<FormControl size="small" className="w-fit">
-							<TextField
-								id="outlined-size-small"
-								label="End Time"
-								variant="outlined"
-								size="small"
-								type="datetime-local"
-								value={shiftType.endTime}
-								// className="w-[150px]"
-								// onKeyUp={handleWeekNumberChange}
-								onChange={handleEndTimeChange}
-							/>
-						</FormControl>
-					</div>
-					<Button
-						type="button"
-						onClick={() => handleAddShiftType(shiftType)}
-						variant="outlined"
-						className="w-fit"
-					>
-						Add Shift
-					</Button>
-				</FormGroup>
-			</div>
-			<div>
-				{shiftsTypes &&
-					shiftsTypes.map((shift: ShiftType) => {
-						return (
-							<div key={shift.id}>
-								{shift.shiftType}
-								<h1>
-									{shift.startTime.toTimeString()} -
-									{shift.endTime.toTimeString()}
-								</h1>
-							</div>
-						);
-					})}
-			</div>
-		</FromWrapper>
-	);
+  // const handleShiftNameChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  //   const newShift = { ...shiftType, shiftType: e.target.value };
+  //   setShiftType(newShift);
+  // };
+
+  // const handleStartTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   const selectedTime = new Date(startDate);
+  //   console.log(startDate);
+  //   const newShift = { ...shiftType, startTime: selectedTime };
+  //   setShiftType(newShift);
+  // };
+
+  // const handleEndTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   const selectedTime = new Date(endDate);
+  //   const newShift = { ...shiftType, endTime: selectedTime };
+  //   setShiftType(newShift);
+  // };
+
+  return (
+    <FromWrapper title="Shifts Setup">
+      <div className="flex flex-col gap-4 ">
+        <Input
+          defaultValue={shiftType.shiftType}
+          placeholder="Enter Shift Name"
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            setShiftType({ ...shiftType, shiftType: e.target.value });
+          }}
+        />
+        <div className="flex gap-4 items-center">
+          <label>Shift start time</label>
+          <DateTimePicker date={startDate} setDate={setStartDate} />
+          <label>Shift end time</label>
+          <DateTimePicker date={endDate} setDate={setEndDate} />
+        </div>
+        <Button
+          type="button"
+          onClick={() => handleAddShiftType(shiftType)}
+          variant="outlined"
+          className="w-1/2 self-center"
+        >
+          Add Shift
+        </Button>
+      </div>
+
+      <DataTable
+        columns={ShiftTypesColumns}
+        data={shiftsTypes}
+        title="Shift Types"
+      />
+
+      {/* <div>
+        {shiftsTypes &&
+          shiftsTypes.map((shift: any) => {
+            return (
+              <div key={shift.id}>
+                {shift.shiftType}
+                <h1>
+                  {shift.startTime.toTimeString()} -
+                  {shift.endTime.toTimeString()}
+                </h1>
+              </div>
+            );
+          })}
+      </div> */}
+    </FromWrapper>
+  );
 }
 
 export default SettingsShiftsStep;
