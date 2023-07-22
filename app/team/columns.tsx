@@ -14,35 +14,38 @@ import { ColumnDef } from "@tanstack/react-table";
 // };
 
 export const TeamColumns: ColumnDef<Employee>[] = [
-  {
-    accessorKey: "firstName",
-    header: "First Name",
-  },
-  {
-    accessorKey: "lastName",
-    header: "Last Name",
-  },
-  {
-    accessorKey: "canWorkShiftTypes",
-    header: "Role",
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Created At",
-  },
+	{
+		accessorKey: "firstName",
+		header: "First Name",
+	},
+	{
+		accessorKey: "lastName",
+		header: "Last Name",
+	},
+	{
+		accessorKey: "shiftTypeToEmployee",
+		header: "Role",
+		//  cell: ({row}) => {
+		//     return row.original.shiftTypeToEmployee
+		//  },
+	},
+	{
+		accessorKey: "createdAt",
+		header: "Created At",
+	},
 ];
 
 export const ShiftTypesColumns: ColumnDef<ShiftType[]>[] = [
-  {
-    accessorKey: "shiftType",
-    header: "Shift Name",
-  },
-  {
-    accessorKey: "startTime",
-    header: "Start Time",
-  },
-  {
-    accessorKey: "endTime",
-    header: "End Time",
-  },
+	{
+		accessorKey: "shiftType",
+		header: "Shift Name",
+	},
+	{
+		accessorKey: "startTime",
+		header: "Start Time",
+	},
+	{
+		accessorKey: "endTime",
+		header: "End Time",
+	},
 ];

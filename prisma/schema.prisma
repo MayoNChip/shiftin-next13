@@ -21,12 +21,21 @@ model User {
 }
 
 model ShiftType {
-  id        Int        @id @unique @default(autoincrement())
-  shiftType String
-  startTime DateTime
-  endTime   DateTime
-  shift     Shift[]
-  employee  Employee[]
+  id                  Int                   @id @unique @default(autoincrement())
+  shiftType           String                @unique
+  startTime           DateTime
+  endTime             DateTime
+  shift               Shift[]
+  // employee            Employee[]
+  shiftTypesToEmplyee ShiftTypeToEmployee[]
+}
+
+model ShiftTypeToEmployee {
+  id         String    @unique @default(cuid())
+  shiftTypes ShiftType @relation(fields: [shiftName], references: [shiftType])
+  shiftName  String
+  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employeeId String
 }
 
 model Shift {
@@ -48,16 +57,15 @@ model WorkDay {
 }
 
 model Employee {
-  id                String           @id @default(cuid())
-  // shift     Shift?   @relation(fields: [shiftId], references: [id])
-  // shiftId   String?
-  firstName         String
-  lastName          String
-  shiftTypes        ShiftType        @relation(fields: [canWorkShiftTypes], references: [id])
-  canWorkShiftTypes Int
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  employeeShift     EmployeeShifts[]
+  id                  String                @id @default(cuid())
+  firstName           String
+  lastName            String
+  // shiftTypes            ShiftType             @relation(fields: [canWorkShiftTypes], references: [id])
+  // canWorkShiftTypes     Int
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  employeeShift       EmployeeShifts[]
+  shiftTypeToEmployee ShiftTypeToEmployee[]
 }
 
 model EmployeeShifts {
@@ -66,10 +74,4 @@ model EmployeeShifts {
   employeeId String
   shift      Shift    @relation(fields: [shiftId], references: [id])
   shiftId    String
-}
-
-model Role {
-  id       Int    @id @default(autoincrement())
-  roleName String
-  // employee Employee[]
 }
