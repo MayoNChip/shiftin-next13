@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useMultiStepForm } from "@/hooks/useMultiStepForm";
 import { FormGroup, useForkRef } from "@mui/material";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import SettingsFormStep from "./SettingsWeekStep";
 import { Shift, ShiftType } from "@prisma/client";
 import SettingsShiftsStep from "./SettingsShiftsStep";
@@ -11,6 +11,7 @@ import SettingsWeekStep from "./SettingsWeekStep";
 import { InitialFormDataType, ShiftTypeInterface } from "@/commonTypes";
 import { Toast } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface Props {
   shiftsTypes: ShiftType[];
@@ -70,6 +71,16 @@ function SettingsForm({ shiftsTypes, handleAddShiftType }: Props) {
   const [data, setData] = useState<InitialFormDataType>(INITIAL_FORM_DATA);
 
   const { toast } = useToast();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const url = `${pathname}`;
+    console.log(url);
+    // You can now use the current URL
+    // ...
+  }, [pathname, searchParams]);
+
   const ChangeWeekFormData = (
     newWeek: {
       id: number;

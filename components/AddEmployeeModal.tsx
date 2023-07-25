@@ -1,11 +1,11 @@
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ChangeEvent, FormEvent, ReactNode } from "react";
 import React from "react";
@@ -14,13 +14,13 @@ import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import { ShiftType } from "@prisma/client";
 import {
-	Form,
-	FormControl,
-	FormDescription,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "./ui/form";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -28,211 +28,212 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "./ui/use-toast";
 
 interface Props {
-	isOpen: boolean;
-	setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-	shiftTypes: ShiftType[];
-	createEmployee: (employee: {
-		firstName: string;
-		lastName: string;
-		roles: ShiftType["shiftType"][];
-	}) => void;
+  isOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  shiftTypes: ShiftType[];
+  createEmployee: (employee: {
+    firstName: string;
+    lastName: string;
+    roles: ShiftType["shiftType"][];
+  }) => void;
 }
 
 interface newUserType {
-	firstName: string;
-	lastName: string;
-	roles: ShiftType["shiftType"][];
+  firstName: string;
+  lastName: string;
+  roles: ShiftType["shiftType"][];
 }
 
 // interface CreateEmployee
 
 function AddEmployeeModal({
-	isOpen,
-	setIsModalOpen,
-	createEmployee,
-	shiftTypes,
+  isOpen,
+  setIsModalOpen,
+  createEmployee,
+  shiftTypes,
 }: Props) {
-	const handleClose = () => {
-		setIsModalOpen(false);
-	};
+  const handleClose = () => {
+    setIsModalOpen(false);
+  };
 
-	// const [newUserDetails, setNewUserDetails] = React.useState<newUserType>({
-	// 	firstName: "",
-	// 	lastName: "",
-	// 	canWorkShiftTypes: 1,
-	// });
+  // const [newUserDetails, setNewUserDetails] = React.useState<newUserType>({
+  // 	firstName: "",
+  // 	lastName: "",
+  // 	canWorkShiftTypes: 1,
+  // });
 
-	const FormSchema = z.object({
-		firstName: z.string().min(2),
-		lastName: z.string().min(2),
-		roles: z.array(z.string()).refine((value) => value.some((item) => item), {
-			message: "You have to select at least one item.",
-		}),
-	});
+  const FormSchema = z.object({
+    firstName: z.string().min(2),
+    lastName: z.string().min(2),
+    roles: z.array(z.string()).refine((value) => value.some((item) => item), {
+      message: "You have to select at least one item.",
+    }),
+  });
 
-	const form = useForm<z.infer<typeof FormSchema>>({
-		resolver: zodResolver(FormSchema),
-		defaultValues: {
-			firstName: "",
-			lastName: "",
-			roles: ["Waiter"],
-		},
-	});
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      roles: ["Waiter"],
+    },
+  });
 
-	// const handleCreateEmployee = (
-	// 	e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-	// ) => {
-	// 	if (
-	// 		!newUserDetails.canWorkShiftTypes ||
-	// 		!newUserDetails.firstName ||
-	// 		!newUserDetails.lastName
-	// 	)
-	// 		return;
+  // const handleCreateEmployee = (
+  // 	e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  // ) => {
+  // 	if (
+  // 		!newUserDetails.canWorkShiftTypes ||
+  // 		!newUserDetails.firstName ||
+  // 		!newUserDetails.lastName
+  // 	)
+  // 		return;
 
-	// 	createEmployee({ ...newUserDetails });
-	// 	setIsModalOpen(false);
-	// };
+  // 	createEmployee({ ...newUserDetails });
+  // 	setIsModalOpen(false);
+  // };
 
-	function onSubmit(data: z.infer<typeof FormSchema>) {
-		toast({
-			title: "You submitted the following values:",
-			description: (
-				<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-					<code className="text-white">{JSON.stringify(data, null, 2)}</code>
-				</pre>
-			),
-		});
-		createEmployee({ ...data });
-	}
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    // toast({
+    //   title: "You submitted the following values:",
+    //   description: (
+    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+    //     </pre>
+    //   ),
+    // });
+    console.log(data);
+    createEmployee({ ...data });
+  }
 
-	// const handleFirstNameChange = (
-	// 	e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-	// ) => {
-	// 	console.log(e.target.value);
-	// 	setNewUserDetails({ ...newUserDetails, firstName: e.target.value });
-	// };
-	// const handleLastNameChange = (
-	// 	e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-	// ) => {
-	// 	console.log(e.target.value);
-	// 	setNewUserDetails({ ...newUserDetails, lastName: e.target.value });
-	// };
+  // const handleFirstNameChange = (
+  // 	e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  // ) => {
+  // 	console.log(e.target.value);
+  // 	setNewUserDetails({ ...newUserDetails, firstName: e.target.value });
+  // };
+  // const handleLastNameChange = (
+  // 	e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  // ) => {
+  // 	console.log(e.target.value);
+  // 	setNewUserDetails({ ...newUserDetails, lastName: e.target.value });
+  // };
 
-	// const handleRoleChange = (e: FormEvent<HTMLButtonElement>) => {
-	// 	// console.log(e.target.);
-	// 	setNewUserDetails({
-	// 		...newUserDetails,
-	// 		canWorkShiftTypes: 1,
-	// 	});
-	// };
+  // const handleRoleChange = (e: FormEvent<HTMLButtonElement>) => {
+  // 	// console.log(e.target.);
+  // 	setNewUserDetails({
+  // 		...newUserDetails,
+  // 		canWorkShiftTypes: 1,
+  // 	});
+  // };
 
-	return (
-		<>
-			<Dialog open={isOpen} onOpenChange={handleClose}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle className="text-2xl text-teal-700 text-opacity-50">
-							Add Employees
-						</DialogTitle>
-					</DialogHeader>
-					<DialogDescription>
-						<Form {...form}>
-							<form
-								onSubmit={form.handleSubmit(onSubmit)}
-								className="space-y-8"
-							>
-								<FormField
-									control={form.control}
-									name="firstName"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>First Name</FormLabel>
-											<FormControl>
-												<Input placeholder="Enter first name..." {...field} />
-											</FormControl>
-											{/* <FormDescription>
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-teal-700 text-opacity-50">
+              Add Employees
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter first name..." {...field} />
+                      </FormControl>
+                      {/* <FormDescription>
 													This is your public display name.
 												</FormDescription> */}
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="lastName"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Last Name</FormLabel>
-											<FormControl>
-												<Input placeholder="Enter last name..." {...field} />
-											</FormControl>
-											{/* <FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter last name..." {...field} />
+                      </FormControl>
+                      {/* <FormDescription>
 													This is your public display name.
 												</FormDescription> */}
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormItem>
-									<div className="mb-4">
-										<FormLabel className="text-base">Roles</FormLabel>
-										<FormDescription>
-											Select the roles this employee can fulfill.
-										</FormDescription>
-									</div>
-									{shiftTypes?.map((shift) => (
-										<FormField
-											control={form.control}
-											key={shift.id}
-											name="roles"
-											render={({ field }) => {
-												return (
-													<FormItem
-														key={shift.id}
-														className="flex flex-row items-start space-x-3 space-y-0"
-													>
-														<FormControl>
-															<Checkbox
-																checked={field.value?.includes(shift.shiftType)}
-																onCheckedChange={(checked) => {
-																	return checked
-																		? field.onChange([
-																				...field.value,
-																				shift.shiftType,
-																		  ])
-																		: field.onChange(
-																				field.value?.filter(
-																					(value) => value !== shift.shiftType
-																				)
-																		  );
-																}}
-															/>
-														</FormControl>
-														<FormLabel className="text-sm font-normal">
-															{shift.shiftType}
-														</FormLabel>
-													</FormItem>
-												);
-											}}
-										></FormField>
-									))}
-									;
-								</FormItem>
-								<DialogFooter>
-									<div className="flex items-center justify-end w-full gap-4 ">
-										<Button type="button" onClick={handleClose}>
-											Cancel
-										</Button>
-										<Button type="submit">Create</Button>
-									</div>
-								</DialogFooter>
-							</form>
-						</Form>
-					</DialogDescription>
-				</DialogContent>
-			</Dialog>
-		</>
-	);
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormItem>
+                  <div className="mb-4">
+                    <FormLabel className="text-base">Roles</FormLabel>
+                    <FormDescription>
+                      Select the roles this employee can fulfill.
+                    </FormDescription>
+                  </div>
+                  {shiftTypes?.map((shift) => (
+                    <FormField
+                      control={form.control}
+                      key={shift.id}
+                      name="roles"
+                      render={({ field }) => {
+                        return (
+                          <FormItem
+                            key={shift.id}
+                            className="flex flex-row items-start space-x-3 space-y-0"
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(shift.shiftType)}
+                                onCheckedChange={(checked) => {
+                                  return checked
+                                    ? field.onChange([
+                                        ...field.value,
+                                        shift.shiftType,
+                                      ])
+                                    : field.onChange(
+                                        field.value?.filter(
+                                          (value) => value !== shift.shiftType
+                                        )
+                                      );
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-sm font-normal">
+                              {shift.shiftType}
+                            </FormLabel>
+                          </FormItem>
+                        );
+                      }}
+                    ></FormField>
+                  ))}
+                  ;
+                </FormItem>
+                <DialogFooter>
+                  <div className="flex items-center justify-end w-full gap-4 ">
+                    <Button type="button" onClick={handleClose}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">Create</Button>
+                  </div>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
 
 export default AddEmployeeModal;

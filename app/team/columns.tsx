@@ -1,6 +1,11 @@
 "use client";
 
-import { Employee, ShiftType } from "@prisma/client";
+import {
+  Employee,
+  Prisma,
+  ShiftType,
+  ShiftTypeToEmployee,
+} from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 
 // This type is used to define the shape of our data.
@@ -13,39 +18,50 @@ import { ColumnDef } from "@tanstack/react-table";
 //   role: "waiter" | "manager" | "bar"
 // };
 
-export const TeamColumns: ColumnDef<Employee>[] = [
-	{
-		accessorKey: "firstName",
-		header: "First Name",
-	},
-	{
-		accessorKey: "lastName",
-		header: "Last Name",
-	},
-	{
-		accessorKey: "shiftTypeToEmployee",
-		header: "Role",
-		//  cell: ({row}) => {
-		//     return row.original.shiftTypeToEmployee
-		//  },
-	},
-	{
-		accessorKey: "createdAt",
-		header: "Created At",
-	},
+type EmployeeWithShiftTypes = Prisma.EmployeeGetPayload<{
+  include: { shiftTypeToEmployee: true };
+}>;
+
+export const TeamColumns: ColumnDef<EmployeeWithShiftTypes>[] = [
+  {
+    accessorKey: "firstName",
+    header: "First Name",
+  },
+  {
+    accessorKey: "lastName",
+    header: "Last Name",
+  },
+  {
+    accessorKey: "shiftTypeToEmployee",
+    header: "Role",
+    cell: ({ row }) => {
+      const roww = row.original.shiftTypeToEmployee.map((shiftType) => {
+        return row.original.shiftTypeToEmployee.length !==
+          row.original.shiftTypeToEmployee.length - 1
+          ? `${shiftType.shiftName}, `
+          : `${shiftType.shiftName}.`;
+      });
+      //   console.log(roww);
+      return roww;
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created At",
+  },
 ];
 
 export const ShiftTypesColumns: ColumnDef<ShiftType[]>[] = [
-	{
-		accessorKey: "shiftType",
-		header: "Shift Name",
-	},
-	{
-		accessorKey: "startTime",
-		header: "Start Time",
-	},
-	{
-		accessorKey: "endTime",
-		header: "End Time",
-	},
+  {
+    accessorKey: "shiftType",
+    header: "Shift Name",
+  },
+  {
+    accessorKey: "startTime",
+    header: "Start Time",
+  },
+  {
+    accessorKey: "endTime",
+    header: "End Time",
+  },
 ];
