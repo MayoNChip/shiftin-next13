@@ -12,12 +12,17 @@ datasource db {
 }
 
 model User {
-  id         String  @id @default(cuid())
-  email      String  @unique
-  password   String?
-  name       String?
-  image      String?
-  configured Boolean @default(false)
+  id            String            @id @default(cuid())
+  email         String            @unique
+  password      String?
+  name          String?
+  image         String?
+  configured    Boolean           @default(false)
+  // shifts        Shift[]
+  shiftTypes    shiftTypeToUser[]
+  shifts        shiftsToUser[]
+  Employee      Employee[]
+  userToWorkDay UserToWorkDay[]
 }
 
 model ShiftType {
@@ -28,32 +33,61 @@ model ShiftType {
   shift               Shift[]
   // employee            Employee[]
   shiftTypesToEmplyee ShiftTypeToEmployee[]
+  shiftTypeToUser     shiftTypeToUser[]
+}
+
+model shiftTypeToUser {
+  id          String    @unique @default(cuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  shiftType   ShiftType @relation(fields: [shiftTypeId], references: [id])
+  shiftTypeId Int
+}
+
+model shiftsToUser {
+  id      String @unique @default(cuid())
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+  shift   Shift  @relation(fields: [shiftId], references: [id])
+  shiftId String
 }
 
 model ShiftTypeToEmployee {
   id         String    @unique @default(cuid())
-  shiftTypes ShiftType @relation(fields: [shiftName], references: [shiftType])
-  shiftName  String
+  shiftTypes ShiftType @relation(fields: [shiftType], references: [shiftType])
+  shiftType  String
   employee   Employee  @relation(fields: [employeeId], references: [id])
   employeeId String
 }
 
 model Shift {
-  id          String           @id @default(cuid())
-  shiftType   ShiftType?       @relation(fields: [shiftTypeId], references: [id])
-  shiftTypeId Int?
-  workDay     WorkDay?         @relation(fields: [workDayId], references: [id])
-  workDayId   Int?
-  employees   EmployeeShifts[]
+  id           String           @id @default(cuid())
+  shiftType    ShiftType?       @relation(fields: [shiftTypeId], references: [id])
+  shiftTypeId  Int
+  // user         User?            @relation(fields: [userId], references: [id])
+  // userId       String
+  workDay      WorkDay?         @relation(fields: [workDayId], references: [id])
+  workDayId    Int?
+  employees    EmployeeShifts[]
+  shiftsToUser shiftsToUser[]
 }
 
 model WorkDay {
-  id     Int     @id @default(autoincrement())
-  day    String  @unique
-  shifts Shift[]
+  id            Int             @id @default(autoincrement())
+  day           String          @unique
+  shifts        Shift[]
   // week   Int
   // month  String
-  active Boolean
+  userToWorkDay UserToWorkDay[]
+}
+
+model UserToWorkDay {
+  id        String  @id @default(cuid())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+  workDay   WorkDay @relation(fields: [workDayId], references: [id])
+  workDayId Int
+  active    Boolean
 }
 
 model Employee {
@@ -66,12 +100,14 @@ model Employee {
   updatedAt           DateTime              @updatedAt
   employeeShift       EmployeeShifts[]
   shiftTypeToEmployee ShiftTypeToEmployee[]
+  user                User                  @relation(fields: [userId], references: [id])
+  userId              String
 }
 
 model EmployeeShifts {
-  id         String   @id @default(cuid())
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  employeeId String
-  shift      Shift    @relation(fields: [shiftId], references: [id])
-  shiftId    String
+  id         String    @id @default(cuid())
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+  employeeId String?
+  shift      Shift?    @relation(fields: [shiftId], references: [id])
+  shiftId    String?
 }

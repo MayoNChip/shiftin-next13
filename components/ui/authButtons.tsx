@@ -16,9 +16,13 @@ export const LoginButton = () => {
 };
 
 export const LogoutButton = () => {
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/" });
+  };
+
   return (
     <>
-      <Button onClick={() => signOut()}>Sign Out</Button>
+      <Button onClick={handleSignOut}>Sign Out</Button>
     </>
   );
 };

@@ -1,22 +1,9 @@
 "use client";
 
-import {
-  Employee,
-  Prisma,
-  ShiftType,
-  ShiftTypeToEmployee,
-} from "@prisma/client";
+import { Prisma, ShiftType } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-// export type Employee = {
-//   id: string;
-//   firstName: string;
-//   //   status: "pending" | "processing" | "success" | "failed";
-//   lastName: string;
-//   role: "waiter" | "manager" | "bar"
-// };
+import { ShiftTypeNoId } from "../settings/page";
+import { ShiftTypeT } from "../settings/SettingsShiftsStep";
 
 type EmployeeWithShiftTypes = Prisma.EmployeeGetPayload<{
   include: { shiftTypeToEmployee: true };
@@ -38,8 +25,8 @@ export const TeamColumns: ColumnDef<EmployeeWithShiftTypes>[] = [
       const roww = row.original.shiftTypeToEmployee.map((shiftType) => {
         return row.original.shiftTypeToEmployee.length !==
           row.original.shiftTypeToEmployee.length - 1
-          ? `${shiftType.shiftName}, `
-          : `${shiftType.shiftName}.`;
+          ? `${shiftType.shiftType}, `
+          : `${shiftType.shiftType}.`;
       });
       //   console.log(roww);
       return roww;
@@ -51,17 +38,17 @@ export const TeamColumns: ColumnDef<EmployeeWithShiftTypes>[] = [
   },
 ];
 
-export const ShiftTypesColumns: ColumnDef<ShiftType[]>[] = [
+export const ShiftTypesColumns: ColumnDef<ShiftTypeT>[] = [
   {
-    accessorKey: "shiftType",
+    accessorKey: "shiftType.shiftType",
     header: "Shift Name",
   },
   {
-    accessorKey: "startTime",
+    accessorKey: "shiftType.startTime",
     header: "Start Time",
   },
   {
-    accessorKey: "endTime",
+    accessorKey: "shiftType.endTime",
     header: "End Time",
   },
 ];

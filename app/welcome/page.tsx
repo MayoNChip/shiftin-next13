@@ -13,8 +13,8 @@ export default async function page() {
 	}
 
 	return (
-		<div className="flex flex-col items-center w-full p-10">
-			<div className="w-2/3 text-center shadow-md h-[450px]">
+		<div className="flex flex-col items-center w-full pt-20">
+			<div className="w-2/3 text-center">
 				<h1 className="text-4xl font-bold">Welcome {session?.user?.name}</h1>
 			</div>
 		</div>

@@ -38,6 +38,8 @@ CREATE TABLE "WorkDay" (
     CONSTRAINT "WorkDay_pkey" PRIMARY KEY ("id")
 );
 
+INSERT INTO "WorkDay" (day, active) VALUES ('Monday', false), ('Tuesday', false), ('Wednesday', false), ('Thursday', false), ('Friday', false), ('Saturday', false), ('Sunday', false); 
+
 -- CreateTable
 CREATE TABLE "Employee" (
     "id" TEXT NOT NULL,

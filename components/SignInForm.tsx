@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { signIn } from "next-auth/react";
+import { revalidatePath } from "next/cache";
 
 const FormSchema = z.object({
 	email: z.string().email(),
@@ -28,10 +29,14 @@ const FormSchema = z.object({
 export function SignInForm() {
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
+		defaultValues: {
+			email: "",
+			password: "",
+		},
 	});
 
 	function onSubmit(data: z.infer<typeof FormSchema>) {
-		console.log("submitting");
+		console.log("submitting", data);
 		signIn("credentials", {
 			...data,
 		});

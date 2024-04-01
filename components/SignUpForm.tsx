@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { signIn } from "next-auth/react";
-import { SignUpUser } from "@/commonTypes";
+import { signUpUser } from "@/actions/authActions";
 
 const FormSchema = z.object({
 	name: z.string().min(2, { message: "name must be at least 2 characters." }),
@@ -27,17 +27,13 @@ const FormSchema = z.object({
 	}),
 });
 
-interface Props {
-	signUpUser: (user: SignUpUser) => Promise<string>;
-}
-
-export function SignUpForm({ signUpUser }: Props) {
+export function SignUpForm() {
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 	});
 
 	async function onSubmit(data: z.infer<typeof FormSchema>) {
-		console.log("adding user");
+		console.log("adding user", data);
 		const userId = await signUpUser(data);
 		if (userId) {
 			toast({

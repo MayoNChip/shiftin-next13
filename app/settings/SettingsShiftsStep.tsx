@@ -1,106 +1,157 @@
 "use client";
 
-import { Button } from "@mui/material";
-import React, { ChangeEvent, useMemo, useState } from "react";
-import FromWrapper from "./FromWrapper";
-import { useMultiStepForm } from "@/hooks/useMultiStepForm";
+import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { InitialFormDataType, ShiftTypeInterface } from "@/commonTypes";
 import { Input } from "@/components/ui/input";
 import { DateTimePicker } from "./DateTimePicker";
-import { ShiftType } from "@prisma/client";
 import { DataTable } from "../team/data-table";
 import { ShiftTypesColumns } from "../team/columns";
+import { addShiftType } from "@/actions/settingsActions";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Shift,
+  ShiftType,
+  UserToWorkDay,
+  WorkDay,
+  shiftTypeToUser,
+  shiftsToUser,
+} from "@prisma/client";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
-type Props = InitialFormDataType & {
-  shiftsTypes: ShiftType[];
-  handleAddShiftType: (shiftType: ShiftTypeInterface) => any;
-};
+type WorkDayType = UserToWorkDay & { workDay: WorkDay };
+export type ShiftTypeT = shiftTypeToUser & { shiftType: ShiftType };
 
-function SettingsShiftsStep({ shiftsTypes, handleAddShiftType }: Props) {
+const FormSchema = z.object({
+  shiftType: z.string(),
+  startTime: z.date(),
+  //   startTime: z.string(),
+  endTime: z.date(),
+  userId: z.string(),
+});
+
+function SettingsShiftsStep({ shiftTypes }: { shiftTypes: ShiftTypeT[] }) {
+  const { data: session, status } = useSession();
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
-  const { currentStepIndex, next, steps, step, back } = useMultiStepForm([]);
-  const [shiftType, setShiftType] = useState<InitialFormDataType["shifts"][0]>({
-    shiftType: "",
-    startTime: new Date(),
-    endTime: new Date(),
+  //   const [shiftType, setShiftType] = useState<
+  //     ShiftTypeInterface & { userId: string }
+  //   >({
+  //     shiftType: "",
+  //     startTime: new Date(),
+  //     endTime: new Date(),
+  //     userId: "",
+  //   });
+
+  useEffect(() => {
+    if (!session?.user) return;
+    form.setValue("userId", session?.user?.id);
+  }, [shiftTypes]);
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      shiftType: "",
+      startTime: new Date(),
+      //   startTime: "",
+      endTime: new Date(),
+      userId: undefined,
+    },
   });
+
   useMemo(() => {
-    const newShift = { ...shiftType, startTime: startDate, endTime: endDate };
-    setShiftType(newShift);
+    form.setValue("startTime", startDate);
+    form.setValue("endTime", endDate);
   }, [startDate, endDate]);
-  // useMemo(() => {
-  //   const newShift = { ...shiftType, startTime: endDate };
-  //   setShiftType(newShift);
-  // }, [endDate]);
 
-  console.log(shiftType);
+  const handleAddShift = async (values: z.infer<typeof FormSchema>) => {
+    if (!session?.user?.id) {
+      return toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please login first",
+      });
+    }
+    form.setValue("userId", session?.user?.id);
 
-  // const handleShiftNameChange = async (e: ChangeEvent<HTMLInputElement>) => {
-  //   const newShift = { ...shiftType, shiftType: e.target.value };
-  //   setShiftType(newShift);
-  // };
+    const res = await addShiftType(values);
+    toast({
+      variant: !res.success ? "destructive" : "default",
 
-  // const handleStartTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   const selectedTime = new Date(startDate);
-  //   console.log(startDate);
-  //   const newShift = { ...shiftType, startTime: selectedTime };
-  //   setShiftType(newShift);
-  // };
-
-  // const handleEndTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   const selectedTime = new Date(endDate);
-  //   const newShift = { ...shiftType, endTime: selectedTime };
-  //   setShiftType(newShift);
-  // };
+      title: !res.success ? "Error" : "Success",
+      description: !res.success ? res.error : "Shift added successfully",
+    });
+    form.reset();
+  };
 
   return (
-    <FromWrapper title="Shifts Setup">
-      <div className="flex flex-col gap-4 ">
-        <Input
-          defaultValue={shiftType.shiftType}
-          placeholder="Enter Shift Name"
-          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            setShiftType({ ...shiftType, shiftType: e.target.value });
-          }}
-        />
-        <div className="flex gap-4 items-center">
-          <label>Shift start time</label>
-          <DateTimePicker date={startDate} setDate={setStartDate} />
-          <label>Shift end time</label>
-          <DateTimePicker date={endDate} setDate={setEndDate} />
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleAddShift)}
+        className="flex flex-col items-center py-10 w-fit"
+      >
+        <h1 className="self-start py-4 text-6xl font-extralight">
+          Your shift types
+        </h1>
+        {!shiftTypes ||
+          (shiftTypes.length === 0 && (
+            <h1 className="self-start py-6 text-xl font-extralight text-primary">
+              Time to add your first shift type.
+              <br /> Give it a name, a start time and an end time.
+            </h1>
+          ))}
+        <div className="flex flex-col gap-4">
+          <FormField
+            control={form.control}
+            name="shiftType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Shift Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter shift name" {...field} />
+                </FormControl>
+                {/* <FormDescription>
+                  This is your public display name.
+                </FormDescription> */}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex items-center gap-4">
+            <label>Shift start time</label>
+            <DateTimePicker date={startDate} setDate={setStartDate} />
+            <label>Shift end time</label>
+            <DateTimePicker date={endDate} setDate={setEndDate} />
+          </div>
+          <Button type="submit" className="self-center m-10 w-fit">
+            Add Shift
+          </Button>
         </div>
-        <Button
-          type="button"
-          onClick={() => handleAddShiftType(shiftType)}
-          variant="outlined"
-          className="w-1/2 self-center"
-        >
-          Add Shift
+
+        <DataTable
+          columns={ShiftTypesColumns}
+          data={shiftTypes}
+          title="Shift Types"
+        />
+        <Button className="self-end m-10 w-fit" type="button">
+          <Link href="/settings/team">Next</Link>
         </Button>
-      </div>
-
-      <DataTable
-        columns={ShiftTypesColumns}
-        data={shiftsTypes}
-        title="Shift Types"
-      />
-
-      {/* <div>
-        {shiftsTypes &&
-          shiftsTypes.map((shift: any) => {
-            return (
-              <div key={shift.id}>
-                {shift.shiftType}
-                <h1>
-                  {shift.startTime.toTimeString()} -
-                  {shift.endTime.toTimeString()}
-                </h1>
-              </div>
-            );
-          })}
-      </div> */}
-    </FromWrapper>
+      </form>
+    </Form>
   );
 }
 

@@ -2,7 +2,7 @@ export interface InitialFormDataType {
 	weekWorkDays: {
 		id: number;
 		day: string;
-		active: boolean;
+		// active: boolean;
 	}[];
 	shifts: ShiftTypeInterface[];
 }

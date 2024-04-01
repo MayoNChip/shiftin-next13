@@ -34,7 +34,7 @@ export function DataTable<TData, TValue>({
 	});
 	console.log("emplyees ", data);
 	return (
-		<div className="rounded-md border self-center w-[800px] flex items-center">
+		<div className="rounded-md border self-center w-[800px] max-h-96 flex items-center overflow-y-scroll">
 			<Table>
 				{/* <TableHeader>
           <div className="flex self-center p-2 w-max">

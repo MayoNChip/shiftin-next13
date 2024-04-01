@@ -1,3 +1,4 @@
+"use client";
 import {
   Dialog,
   DialogContent,
@@ -26,16 +27,15 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "./ui/use-toast";
+import { createEmployee } from "@/actions/teamActions";
+// import { addUserToShift } from "@/actions/scheduleActions";
+import { useSession } from "next-auth/react";
+import { ShiftTypeT } from "@/app/settings/SettingsShiftsStep";
 
 interface Props {
   isOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  shiftTypes: ShiftType[];
-  createEmployee: (employee: {
-    firstName: string;
-    lastName: string;
-    roles: ShiftType["shiftType"][];
-  }) => void;
+  shiftTypes: ShiftTypeT[];
 }
 
 interface newUserType {
@@ -46,21 +46,28 @@ interface newUserType {
 
 // interface CreateEmployee
 
-function AddEmployeeModal({
-  isOpen,
-  setIsModalOpen,
-  createEmployee,
-  shiftTypes,
-}: Props) {
+function AddEmployeeModal({ isOpen, setIsModalOpen, shiftTypes }: Props) {
   const handleClose = () => {
     setIsModalOpen(false);
   };
+  console.log("shift types", shiftTypes);
+  const { data: session } = useSession();
 
   // const [newUserDetails, setNewUserDetails] = React.useState<newUserType>({
   // 	firstName: "",
   // 	lastName: "",
   // 	canWorkShiftTypes: 1,
   // });
+
+  if (!session || !session.user) {
+    return (
+      <div>
+        <h1>Please login</h1>
+      </div>
+    );
+  }
+
+  console.log(session);
 
   const FormSchema = z.object({
     firstName: z.string().min(2),
@@ -75,7 +82,7 @@ function AddEmployeeModal({
     defaultValues: {
       firstName: "",
       lastName: "",
-      roles: ["Waiter"],
+      roles: [],
     },
   });
 
@@ -93,7 +100,7 @@ function AddEmployeeModal({
   // 	setIsModalOpen(false);
   // };
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
     // toast({
     //   title: "You submitted the following values:",
     //   description: (
@@ -102,8 +109,18 @@ function AddEmployeeModal({
     //     </pre>
     //   ),
     // });
-    console.log(data);
-    createEmployee({ ...data });
+    if (!session?.user) {
+      return toast({
+        title: "Error",
+        description: "Please login first",
+      });
+    }
+    try {
+      await createEmployee({ ...data, userId: session?.user?.id });
+      handleClose();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   // const handleFirstNameChange = (
@@ -149,7 +166,7 @@ function AddEmployeeModal({
                     <FormItem>
                       <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter first name..." {...field} />
+                        <Input placeholder="Enter first name" {...field} />
                       </FormControl>
                       {/* <FormDescription>
 													This is your public display name.
@@ -165,7 +182,7 @@ function AddEmployeeModal({
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter last name..." {...field} />
+                        <Input placeholder="Enter last name" {...field} />
                       </FormControl>
                       {/* <FormDescription>
 													This is your public display name.
@@ -194,23 +211,26 @@ function AddEmployeeModal({
                           >
                             <FormControl>
                               <Checkbox
-                                checked={field.value?.includes(shift.shiftType)}
+                                checked={field.value?.includes(
+                                  shift.shiftType.shiftType
+                                )}
                                 onCheckedChange={(checked) => {
                                   return checked
                                     ? field.onChange([
                                         ...field.value,
-                                        shift.shiftType,
+                                        shift.shiftType.shiftType,
                                       ])
                                     : field.onChange(
                                         field.value?.filter(
-                                          (value) => value !== shift.shiftType
+                                          (value) =>
+                                            value !== shift.shiftType.shiftType
                                         )
                                       );
                                 }}
                               />
                             </FormControl>
                             <FormLabel className="text-sm font-normal">
-                              {shift.shiftType}
+                              {shift.shiftType.shiftType}
                             </FormLabel>
                           </FormItem>
                         );
@@ -224,6 +244,9 @@ function AddEmployeeModal({
                     <Button type="button" onClick={handleClose}>
                       Cancel
                     </Button>
+                    {/* <Button onClick={() => addUserToShift()}>
+                      Add to shift
+                    </Button> */}
                     <Button type="submit">Create</Button>
                   </div>
                 </DialogFooter>
