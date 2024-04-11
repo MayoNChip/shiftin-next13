@@ -34,7 +34,7 @@ import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 
 type WorkDayType = UserToWorkDay & { workDay: WorkDay };
-export type ShiftTypeT = shiftTypeToUser & { shiftType: ShiftType };
+export type ShiftTypeT = { shiftType: ShiftType } & shiftTypeToUser;
 
 const FormSchema = z.object({
   shiftType: z.string(),

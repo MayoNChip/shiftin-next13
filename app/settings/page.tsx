@@ -1,10 +1,14 @@
-import SettingsFrom from "./SettingsForm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { User } from "@prisma/client";
+import { useState } from "react";
+import WorkDays from "./_components/WorkDays";
+import { prisma } from "@/lib/prisma";
+import EditSettings from "./_components/EditSettings";
+import { getUserSettings } from "@/actions/settingsActions";
+import { toast } from "@/components/ui/use-toast";
 
 export const INITIAL_FORM_DATA = {
   weekWorkDays: [
@@ -57,15 +61,30 @@ export type ShiftTypeNoId = (typeof INITIAL_FORM_DATA)["shifts"][0] & {
   userId: string;
 };
 
-export default async function index() {
+export default async function Settings() {
   const session = await getServerSession(authOptions);
+  const workDays = await prisma.userToWorkDay.findMany({
+    where: { userId: session?.user?.id },
+    include: { workDay: true },
+  });
+
+  const userSettings = await getUserSettings(session?.user?.id);
+
+  if (!userSettings?.userToWorkDay) {
+    toast({
+      variant: "destructive",
+      title: "Something went wrong",
+      description: "Try again after re-login",
+    });
+    redirect("/signin?callbackURL=/settings");
+  }
 
   if (!session?.user) {
     redirect("/signin?callbackURL=/settings");
   }
 
   return (
-    <div className="w-full h-screen pt-32">
+    <div className="w-full h-screen">
       {!session?.user?.configured ? (
         <div className="flex justify-around h-full pb-24">
           <div className="flex flex-col space-y-10">
@@ -81,8 +100,11 @@ export default async function index() {
           </Button>
         </div>
       ) : (
-        <div>
-          <h1>To edit your settings, click on the button below</h1>
+        <div className="w-full h-full flex items-center justify-center space-x-4">
+          <EditSettings
+            workDays={userSettings?.userToWorkDay}
+            shiftTypes={userSettings.shiftTypes}
+          />
         </div>
       )}
     </div>

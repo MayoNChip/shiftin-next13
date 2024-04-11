@@ -6,30 +6,30 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata = {
-	title: "Shiftin",
-	description: "",
+  title: "Shiftin",
+  description: "",
 };
 
 export default function RootLayout({
-	children,
+  children,
 }: {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-	// const { setTheme, theme } = useTheme();
-	return (
-		<html lang="en">
-			<body className="h-screen bg-background">
-				<ThemeProvider
-					attribute="class"
-					enableSystem
-					defaultTheme="system"
-					disableTransitionOnChange
-				>
-					<Navbar />
-					<NextAuthProvider>{children}</NextAuthProvider>
-					<Toaster />
-				</ThemeProvider>
-			</body>
-		</html>
-	);
+  // const { setTheme, theme } = useTheme();
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className="h-screen bg-background">
+        <ThemeProvider
+          attribute="class"
+          enableSystem
+          defaultTheme="system"
+          disableTransitionOnChange
+        >
+          <Navbar />
+          <NextAuthProvider>{children}</NextAuthProvider>
+          <Toaster />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
 }

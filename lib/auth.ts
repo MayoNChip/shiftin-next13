@@ -67,15 +67,15 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      console.log("redirect", url, baseUrl);
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) {
-        return url;
-      }
-      return baseUrl;
-    },
+    // async redirect({ url, baseUrl }) {
+    //   console.log("redirect", url, baseUrl);
+    //   if (url.startsWith("/")) return `${baseUrl}${url}`;
+    //   // Allows callback URLs on the same origin
+    //   else if (new URL(url).origin === baseUrl) {
+    //     return url;
+    //   }
+    //   return baseUrl;
+    // },
     async signIn({ user, profile, account }) {
       if (account?.provider === "google") {
         //check if user is in your database
@@ -107,7 +107,6 @@ export const authOptions: NextAuthOptions = {
           return true;
         }
         return true;
-      } else {
       }
       return true;
     },

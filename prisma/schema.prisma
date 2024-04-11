@@ -23,6 +23,7 @@ model User {
   shifts        shiftsToUser[]
   Employee      Employee[]
   userToWorkDay UserToWorkDay[]
+  Schedule      Schedule[]
 }
 
 model ShiftType {
@@ -70,6 +71,8 @@ model Shift {
   workDayId    Int?
   employees    EmployeeShifts[]
   shiftsToUser shiftsToUser[]
+  schedule     Schedule         @relation(fields: [scheduleId], references: [id])
+  scheduleId   String
 }
 
 model WorkDay {
@@ -110,4 +113,12 @@ model EmployeeShifts {
   employeeId String?
   shift      Shift?    @relation(fields: [shiftId], references: [id])
   shiftId    String?
+}
+
+model Schedule {
+  id       String  @id @default(cuid())
+  user     User    @relation(fields: [userId], references: [id])
+  userId   String
+  shift    Shift[]
+  finished Boolean @default(false)
 }

@@ -12,12 +12,16 @@ import { ShiftTypeT } from "@/app/settings/SettingsShiftsStep";
 import { setUserConfigured } from "@/actions/settingsActions";
 import { redirect } from "next/navigation";
 
-async function TeamList({ ShiftTypes }: { ShiftTypes: ShiftTypeT[] }) {
+async function TeamList({ ShiftTypes }: { ShiftTypes?: ShiftTypeT[] }) {
   const session = await getServerSession(authOptions);
 
   // if (!session || !session?.user?.id) {
   //   redirect("/signin?callbackUrl=/team");
   // }
+
+  if (!ShiftTypes || ShiftTypes.length < 1) {
+    redirect("/settings/shifts");
+  }
 
   const employeeList = await prisma.employee.findMany({
     where: { userId: session?.user?.id },

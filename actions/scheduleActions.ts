@@ -25,3 +25,29 @@ import { prisma } from "@/lib/prisma";
 // 	}
 // 	return res;
 // };
+
+export const createNewSchedule = async ({ userId }: { userId?: string }) => {
+  if (!userId) {
+    throw new Error("Please login first");
+  }
+  try {
+    return await prisma.schedule.create({ data: { userId } });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error);
+      throw new Error(error.message);
+    }
+  }
+};
+
+export const getScheduleById = async (scheduleId: string) => {
+  "use server";
+  try {
+    return await prisma.schedule.findUnique({ where: { id: scheduleId } });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+  }
+};

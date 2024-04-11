@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-type WorkDayType = UserToWorkDay & { workDay: WorkDay };
+export type WorkDayType = UserToWorkDay & { workDay: WorkDay };
 
 function WorkDays({ workDays }: { workDays: WorkDayType[] }) {
   const { data: session } = useSession();
@@ -123,32 +123,8 @@ function WorkDays({ workDays }: { workDays: WorkDayType[] }) {
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl>
                             <Checkbox
-                              checked={
-                                field.value.includes(day.id)
-                                // day
-                              }
+                              checked={field.value.includes(day.id)}
                               onCheckedChange={(checked) => {
-                                // if (checked) {
-                                //   //   if (userWorkDays.includes(day.id)) return;
-                                //   setUserWorkDays((prev) => [...prev, day.id]);
-                                //   field.onChange([...field.value, day.id]);
-                                // } else {
-                                //   const removeDay = userWorkDays.filter(
-                                //     (value) => value !== day.id
-                                //   )[0];
-                                //   const dayToRemoveIndex =
-                                //     userWorkDays.indexOf(removeDay);
-                                //   const newDays = userWorkDays.filter(
-                                //     (day, index) => index !== dayToRemoveIndex
-                                //   );
-
-                                //   setUserWorkDays(newDays);
-                                //   field.onChange(
-                                //     field.value?.filter(
-                                //       (value) => value !== day.id
-                                //     )
-                                //   );
-                                // }
                                 console.log("field value", field.value);
                                 return checked
                                   ? field.onChange([...field.value, day.id])
