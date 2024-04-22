@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 // export const addUserToShift = async (userId?: string, shiftId?: string) => {
 // 	"use server";
@@ -26,16 +27,28 @@ import { prisma } from "@/lib/prisma";
 // 	return res;
 // };
 
-export const createNewSchedule = async ({ userId }: { userId?: string }) => {
+export const createNewSchedule = async ({
+  userId,
+  startDate,
+  endDate,
+}: {
+  userId?: string;
+  startDate: Date;
+  endDate: Date;
+}) => {
   if (!userId) {
     throw new Error("Please login first");
   }
   try {
-    return await prisma.schedule.create({ data: { userId } });
+    const res = await prisma.schedule.create({
+      data: { userId, startDate, endDate },
+    });
+    revalidatePath("/schedule");
+    return { success: true, data: res.id };
   } catch (error) {
     if (error instanceof Error) {
       console.log(error);
-      throw new Error(error.message);
+      return { success: false, message: error.message };
     }
   }
 };

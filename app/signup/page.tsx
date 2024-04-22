@@ -23,7 +23,7 @@ export default async function SignInPage() {
         <div className="flex flex-col items-center min-w-[460px] shadow-md rounded-lg space-y-10 p-10">
           <div>
             <h1 className="text-2xl font-bold text-center">
-              Sign in to your account
+              Sign up with a new account
             </h1>
           </div>
           <SignUpForm />

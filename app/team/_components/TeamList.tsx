@@ -3,7 +3,6 @@ import { DataTable } from "../data-table";
 import AddEmployee from "@/components/AddEmployee";
 import { TeamColumns } from "../columns";
 import { prisma } from "@/lib/prisma";
-import { ShiftType } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getServerSession } from "next-auth";

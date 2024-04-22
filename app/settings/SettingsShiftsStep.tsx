@@ -31,15 +31,13 @@ import {
   shiftsToUser,
 } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import Loader from "@/components/ui/loader";
 
-type WorkDayType = UserToWorkDay & { workDay: WorkDay };
 export type ShiftTypeT = { shiftType: ShiftType } & shiftTypeToUser;
 
 const FormSchema = z.object({
-  shiftType: z.string(),
+  shiftType: z.string().min(1),
   startTime: z.date(),
-  //   startTime: z.string(),
   endTime: z.date(),
   userId: z.string(),
 });
@@ -98,6 +96,8 @@ function SettingsShiftsStep({ shiftTypes }: { shiftTypes: ShiftTypeT[] }) {
     form.reset();
   };
 
+  console.log("shift type settings", shiftTypes.length);
+
   return (
     <Form {...form}>
       <form
@@ -137,8 +137,12 @@ function SettingsShiftsStep({ shiftTypes }: { shiftTypes: ShiftTypeT[] }) {
             <label>Shift end time</label>
             <DateTimePicker date={endDate} setDate={setEndDate} />
           </div>
-          <Button type="submit" className="self-center m-10 w-fit">
-            Add Shift
+          <Button
+            disabled={!form.formState.isValid || form.formState.isSubmitting}
+            type="submit"
+            className="self-center m-10 w-fit"
+          >
+            {!form.formState.isSubmitting ? "Add Shift" : <Loader />}
           </Button>
         </div>
 
@@ -147,8 +151,16 @@ function SettingsShiftsStep({ shiftTypes }: { shiftTypes: ShiftTypeT[] }) {
           data={shiftTypes}
           title="Shift Types"
         />
-        <Button className="self-end m-10 w-fit" type="button">
-          <Link href="/settings/team">Next</Link>
+        <Button
+          disabled={shiftTypes.length === 0}
+          className="self-end m-10 w-fit"
+          type="button"
+        >
+          {!form.formState.isSubmitting ? (
+            <Link href="/settings/team">Next</Link>
+          ) : (
+            <Loader />
+          )}
         </Button>
       </form>
     </Form>

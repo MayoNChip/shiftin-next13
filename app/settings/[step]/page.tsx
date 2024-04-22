@@ -5,10 +5,19 @@ import TeamList from "@/app/team/_components/TeamList";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import FinishSettingsButton from "../_components/FinishSettingsButton";
+import { getUserSettings } from "@/actions/settingsActions";
+import { redirect } from "next/navigation";
 
-export default async function Page({ params }: { params: { step: string } }) {
+export default async function SettingsSteps({
+  params,
+}: {
+  params: { step: string };
+}) {
   const session = await getServerSession(authOptions);
 
+  if (!session?.user) {
+    redirect("/signin");
+  }
   const weekWorkDays = await prisma.userToWorkDay.findMany({
     where: { userId: session?.user?.id },
     include: { workDay: { include: { userToWorkDay: true } } },
@@ -21,7 +30,9 @@ export default async function Page({ params }: { params: { step: string } }) {
     },
   });
 
-  if (!userShiftTypes || !session?.user) {
+  const userSettings = await getUserSettings(session?.user?.id);
+
+  if (!userShiftTypes || !session?.user || !userSettings?.Employee) {
     return <h1>loading...</h1>;
   }
 
@@ -46,7 +57,7 @@ export default async function Page({ params }: { params: { step: string } }) {
     return (
       <div className="py-20">
         <TeamList ShiftTypes={userShiftTypes?.shiftTypes} />
-        <FinishSettingsButton />
+        <FinishSettingsButton employees={userSettings?.Employee} />
       </div>
     );
   }

@@ -175,3 +175,10 @@ export const getUserSettings = async (userId?: string) => {
     },
   });
 };
+
+export const getEmployees = async (userId: string) => {
+  return await prisma.user.findUnique({
+    where: { id: userId },
+    include: { Employee: true },
+  });
+};

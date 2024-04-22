@@ -10,6 +10,7 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import Loader from "@/components/ui/loader";
 import { toast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserToWorkDay, WorkDay } from "@prisma/client";
@@ -153,11 +154,15 @@ function WorkDays({ workDays }: { workDays: WorkDayType[] }) {
       </Form>
       {/* {workDays.length > 0 && ( */}
       <Button
-        disabled={userWorkDays.length === 0}
+        disabled={userWorkDays.length === 0 || form.formState.isSubmitting}
         className="absolute bottom-24 right-24"
         type="button"
       >
-        <Link href="/settings/shifts">Next</Link>
+        {form.formState.isSubmitting ? (
+          <Loader />
+        ) : (
+          <Link href="/settings/shifts">Next</Link>
+        )}
       </Button>
       {/* )} */}
     </div>

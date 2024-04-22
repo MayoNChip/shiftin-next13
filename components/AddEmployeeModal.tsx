@@ -117,6 +117,7 @@ function AddEmployeeModal({ isOpen, setIsModalOpen, shiftTypes }: Props) {
     }
     try {
       await createEmployee({ ...data, userId: session?.user?.id });
+      form.reset();
       handleClose();
     } catch (error) {
       console.log(error);
@@ -237,7 +238,6 @@ function AddEmployeeModal({ isOpen, setIsModalOpen, shiftTypes }: Props) {
                       }}
                     ></FormField>
                   ))}
-                  ;
                 </FormItem>
                 <DialogFooter>
                   <div className="flex items-center justify-end w-full gap-4 ">

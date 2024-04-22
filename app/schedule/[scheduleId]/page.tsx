@@ -16,7 +16,9 @@ export default async function Schedule({
 
   return (
     <div>
-      <h1>schedule {scheduleId}</h1>
+      <h1>
+        {`${schedule?.startDate.toDateString()} - ${schedule?.endDate.toDateString()}`}
+      </h1>
       <NewSchedule
         userEmployees={userSettings?.Employee}
         shiftTypes={userSettings?.shiftTypes}
