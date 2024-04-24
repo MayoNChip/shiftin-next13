@@ -13,6 +13,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { cn } from "@/utils";
+import { useSession } from "next-auth/react";
+import { TiDelete } from "react-icons/ti";
 
 type Props = {
   workDays?: (UserToWorkDay & { workDay: WorkDay })[];
@@ -30,18 +32,16 @@ const ShiftSchema = z.object({
 type shiftSchedule = z.infer<typeof ShiftSchema>;
 
 function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
+  const { data: session } = useSession();
   const [shiftSchedule, setShiftSchedule] = useState<shiftSchedule[]>([]);
   const dragConstraintsRef = useRef(null);
   const [active, setActive] = useState<[string, string]>();
 
-  const form = useForm<shiftSchedule>({
+  const form = useForm<shiftSchedule[]>({
     resolver: zodResolver(ShiftSchema),
-    defaultValues: {
-      shiftTypeId: "",
-      workDayId: "",
-      userId: "",
-      employees: [],
-    },
+    defaultValues: [
+      { shiftTypeId: "", workDayId: "", userId: "", employees: [] },
+    ],
   });
 
   const onSubmit = (data: shiftSchedule) => {
@@ -64,88 +64,70 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
     );
   };
 
-  // return (
-  //   <table>
-  //     <thead>my table</thead>
-  //     <tr>
-  //       <th>Shift/Day</th>
-  //       {workDays
-  //         ?.filter((d) => d.active)
-  //         .map((day) => (
-  //           <th key={day.id} className="capitalize">
-  //             {day.workDay.day}
-  //           </th>
-  //         ))}
-  //     </tr>
-  //     <tbody>
-  //       {shiftTypes?.map((st) => (
-  //         <tr key={st.id}>
-  //           <td>{st.shiftType.shiftType}</td>
-  //           {workDays
-  //             ?.filter((d) => d.active)
-  //             .map((day) => (
-  //               <td key={day.id} className="min-w-24 min-h-24">
-  //                 <div className="w-24 h-24 flex items-center border-2 border-accent">
-  //                   day {day.workDayId} {st.shiftType.shiftType}
-  //                 </div>
-  //               </td>
-  //             ))}
-  //         </tr>
-  //       ))}
-  //     </tbody>
-  //   </table>
-  // );
+  const handleDrop = (
+    e: DragEvent<HTMLDivElement>,
+    shiftTypeId: string,
+    workDayId: string
+  ) => {
+    console.log(
+      "dropped",
+      shiftTypeId,
+      workDayId,
+      userEmployees?.filter(
+        (emp) => emp.id === e.dataTransfer.getData("employeeId")
+      )[0].firstName
+    );
+    setActive(undefined);
+    const employeeId = e.dataTransfer.getData("employeeId");
+    if (!e.dataTransfer?.getData("employeeId") || !session?.user) return;
+
+    let selectedShift = shiftSchedule
+      ?.filter((s) => s?.workDayId === workDayId)
+      ?.filter((s) => s?.shiftTypeId === shiftTypeId)[0];
+
+    if (selectedShift) {
+      if (selectedShift.employees.includes(employeeId)) return;
+      selectedShift.employees = [...selectedShift.employees, employeeId];
+      setShiftSchedule([...shiftSchedule]);
+    } else {
+      selectedShift = {
+        shiftTypeId,
+        workDayId,
+        userId: session?.user?.id,
+        employees: [employeeId],
+      };
+      setShiftSchedule([...shiftSchedule, selectedShift]);
+    }
+  };
+
+  const handleRemoveEmployee = (
+    workDayId: string,
+    shiftTypeId: string,
+    employeeId: string
+  ) => {
+    const selectedShift = shiftSchedule
+      .filter((s) => s.shiftTypeId === shiftTypeId)
+      .filter((s) => s.workDayId === workDayId)[0];
+    const employeeIndex = selectedShift.employees.findIndex(
+      (e) => e === employeeId
+    );
+
+    selectedShift.employees.splice(employeeIndex, 1);
+    setShiftSchedule([...shiftSchedule]);
+  };
+
+  console.log(shiftSchedule);
 
   return (
     <div>
-      {/* <Table className="w-fit" ref={dragConstraintsRef}>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Day/Shift</TableHead>
-            {workDays
-              ?.filter((d) => d.active)
-              .map((day) => (
-                <TableHead key={day.id} className="capitalize">
-                  {day.workDay.day}
-                </TableHead>
-              ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {shiftTypes?.map((st) => (
-            <TableRow key={st.id}>
-              <TableCell>{st.shiftType.shiftType}</TableCell>
-              {workDays
-                ?.filter((d) => d.active)
-                .map((day) => (
-                  <TableCell
-                    key={day.id}
-                    onDragOver={(e) => handleDragOver(e, day.id, st.id)}
-                    onDrop={(e) =>
-                      console.log(
-                        "dropped",
-                        st.shiftType.shiftType,
-                        day.workDay.day,
-                        userEmployees?.filter(
-                          (emp) =>
-                            emp.id === e.dataTransfer.getData("employeeId")
-                        )[0].firstName
-                      )
-                    }
-                    className="w-44 h-44 border-2 border-accent"
-                  >
-                    day {day.workDayId} {st.shiftType.shiftType}
-                  </TableCell>
-                ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table> */}
       <div className="flex">
         <div className="flex flex-col">
           <div className="text-center text-gray-400/50">day/shift</div>
           {shiftTypes?.map((st) => (
-            <div className="h-48 border-r-2 border-primary flex items-center p-6">
+            <div
+              key={st.id}
+              className="h-48 border-r-2 border-primary flex items-center p-6"
+            >
               {st.shiftType.shiftType}
             </div>
           ))}
@@ -158,21 +140,12 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
               <h1 className="capitalize">{day.workDay.day}</h1>
               {shiftTypes?.map((st) => (
                 <motion.div
+                  key={st.id}
                   layout
                   layoutId={st.id}
                   onDragOver={(e) => handleDragOver(e, day.id, st.id)}
                   onDragLeave={() => setActive(undefined)}
-                  onDrop={(e) => {
-                    console.log(
-                      "dropped",
-                      st.shiftType.shiftType,
-                      day.workDay.day,
-                      userEmployees?.filter(
-                        (emp) => emp.id === e.dataTransfer.getData("employeeId")
-                      )[0].firstName
-                    );
-                    setActive(undefined);
-                  }}
+                  onDrop={(e) => handleDrop(e, st.id, day.id)}
                   className={cn(
                     active &&
                       active[0] === day.id &&
@@ -181,7 +154,39 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
                     "w-48 h-48 border-secondary border-2"
                   )}
                 >
-                  shift
+                  <div className="flex items-center justify-center w-full h-full">
+                    {shiftSchedule
+                      .filter((s) => s?.shiftTypeId === st.id)
+                      .filter((dayId) => dayId?.workDayId === day.id)
+                      .map((shift) => {
+                        return (
+                          <div
+                            key={shift.shiftTypeId + shift.workDayId}
+                            className="relative p-1"
+                          >
+                            {shift.employees.map((empId) => (
+                              <div key={empId}>
+                                <div
+                                  onClick={() =>
+                                    handleRemoveEmployee(day.id, st.id, empId)
+                                  }
+                                  className="w-4 h-4 rounded-full absolute  justify-center items-center top-1 right-0 bg-amber-700 flex"
+                                >
+                                  <TiDelete />
+                                </div>
+                                <h1 className="size-8 bg-primary/80 p-2 rounded-xl my-2">
+                                  {
+                                    userEmployees?.filter(
+                                      (emp) => emp.id === empId
+                                    )[0].firstName
+                                  }
+                                </h1>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -193,11 +198,12 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
             <div
               draggable
               onDragStart={(e) => {
+                // e.preventDefault()
                 e.dataTransfer.setData("employeeId", emp.id);
                 console.log(e.dataTransfer.getData("employeeId"));
               }}
               key={emp.id}
-              className="flex w-24 h-24 bg-secondary items-center text-white p-4 m-4 rounded"
+              className="flex w-24 h-24 bg-secondary items-center cursor-grab active:cursor-grabbing text-white p-4 m-4 rounded"
             >
               {emp.firstName}
             </div>
