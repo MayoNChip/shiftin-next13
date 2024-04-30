@@ -15,6 +15,19 @@ import { motion } from "framer-motion";
 import { cn } from "@/utils";
 import { useSession } from "next-auth/react";
 import { TiDelete } from "react-icons/ti";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import useSchedule from "@/utils/useSchedule";
+import { data } from "autoprefixer";
 
 type Props = {
   workDays?: (UserToWorkDay & { workDay: WorkDay })[];
@@ -36,13 +49,25 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
   const [shiftSchedule, setShiftSchedule] = useState<shiftSchedule[]>([]);
   const dragConstraintsRef = useRef(null);
   const [active, setActive] = useState<[string, string]>();
+  const [removeFromShift, setRemoveFromShift] = useState<ShiftTypeT>();
 
+  const { getShiftById } = useSchedule();
   const form = useForm<shiftSchedule[]>({
     resolver: zodResolver(ShiftSchema),
     defaultValues: [
       { shiftTypeId: "", workDayId: "", userId: "", employees: [] },
     ],
   });
+
+  const getShiftDetails = (
+    data: { shiftType: string } | { workDay: string }
+  ) => {
+    if ("shiftType" in data) {
+      return shiftTypes?.filter((shift) => shift.id === data.shiftType)[0];
+    } else {
+      return workDays?.filter((workDay) => workDay.id === data.workDay)[0];
+    }
+  };
 
   const onSubmit = (data: shiftSchedule) => {
     console.log(data);
@@ -118,8 +143,10 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
 
   console.log(shiftSchedule);
 
+  if (!shiftTypes || !workDays || !userEmployees) return <div>Loading...</div>;
+
   return (
-    <div>
+    <div className="flex items-center">
       <div className="flex">
         <div className="flex flex-col">
           <div className="text-center text-gray-400/50">day/shift</div>
@@ -166,14 +193,57 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
                           >
                             {shift.employees.map((empId) => (
                               <div key={empId}>
-                                <div
+                                {/* <TiDelete
+                                  className="w-4 h-4 rounded-full absolute cursor-pointer justify-center items-center top-1 right-0 bg-primary flex"
                                   onClick={() =>
                                     handleRemoveEmployee(day.id, st.id, empId)
                                   }
-                                  className="w-4 h-4 rounded-full absolute  justify-center items-center top-1 right-0 bg-amber-700 flex"
-                                >
-                                  <TiDelete />
-                                </div>
+                                /> */}
+                                <AlertDialog>
+                                  <AlertDialogTrigger
+                                    onClick={() =>
+                                      setRemoveFromShift(
+                                        getShiftById(
+                                          shiftTypes,
+                                          shift.shiftTypeId
+                                        )
+                                      )
+                                    }
+                                  >
+                                    <TiDelete className="w-4 h-4 rounded-full absolute cursor-pointer justify-center items-center top-1 right-0 bg-primary flex" />
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        Remove{" "}
+                                        {
+                                          userEmployees?.filter(
+                                            (emp) => emp.id === empId
+                                          )[0].firstName
+                                        }
+                                        ?
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        {
+                                          userEmployees?.filter(
+                                            (emp) => emp.id === empId
+                                          )[0].firstName
+                                        }{" "}
+                                        will be removed from{" "}
+                                        {getShiftDetails({ shiftType: st.id })}
+                                        shift on {day.workDay.day}
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>
+                                        Cancel
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction>
+                                        Continue
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
                                 <h1 className="size-8 bg-primary/80 p-2 rounded-xl my-2">
                                   {
                                     userEmployees?.filter(
@@ -192,7 +262,7 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
             </div>
           ))}
       </div>
-      <div className="container flex items-center justify-center">
+      <div className="container flex flex-col items-center justify-center">
         {userEmployees?.map((emp) => {
           return (
             <div
@@ -203,7 +273,7 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
                 console.log(e.dataTransfer.getData("employeeId"));
               }}
               key={emp.id}
-              className="flex w-24 h-24 bg-secondary items-center cursor-grab active:cursor-grabbing text-white p-4 m-4 rounded"
+              className="flex w-24 h-24 bg-secondary items-center cursor-grab active:cursor-grabbing text-foreground p-4 m-4 rounded"
             >
               {emp.firstName}
             </div>
