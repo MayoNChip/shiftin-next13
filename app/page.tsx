@@ -5,7 +5,10 @@ import { redirect } from "next/navigation";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-  const userSchedules = await prisma.shift.findMany({ take: 1 });
+  const userSchedules = await prisma.schedule.findMany({
+    where: { userId: session?.user?.id },
+    take: 1,
+  });
 
   console.log(session);
 
