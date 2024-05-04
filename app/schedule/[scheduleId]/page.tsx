@@ -15,15 +15,26 @@ export default async function Schedule({
   const session = await getServerSession(authOptions);
   const schedule = await getScheduleById(scheduleId);
   // const userSettings = await getUserSettings(session?.user?.id);
-  const userWorkDays = await prisma.userToWorkDay.findMany({
-    where: { userId: session?.user?.id },
+  const userScheduleSettings = await prisma.user.findUnique({
+    where: { id: session?.user?.id },
+    include: {
+      userToWorkDay: { include: { workDay: true } },
+      shiftTypes: { include: { shiftType: true } },
+      Employee: { include: { shiftTypeToEmployee: true } },
+    },
   });
-  const userShiftTypes = await prisma.shiftTypeToUser.findMany({
-    where: { userId: session?.user?.id },
+  const userShiftTypes = await prisma.shiftType.findMany({
+    where: { shiftTypeToUser: { some: { userId: session?.user?.id } } },
   });
 
+  console.log(
+    "user work days and shift types",
+    userScheduleSettings,
+    userShiftTypes
+  );
+
   return (
-    <div>
+    <div className="flex flex-col items-center pt-10">
       <h1>
         {`${schedule?.startDate.toDateString()} - ${schedule?.endDate.toDateString()}`}
       </h1>
@@ -32,7 +43,11 @@ export default async function Schedule({
         shiftTypes={userSettings?.shiftTypes}
         workDays={userSettings?.userToWorkDay}
       /> */}
-      <ScheduleGrid workDays={userWorkDays} shiftTypes={userShiftTypes} />
+      <ScheduleGrid
+        userWorkDays={userScheduleSettings?.userToWorkDay}
+        shiftTypes={userScheduleSettings?.shiftTypes}
+        userEmployees={userScheduleSettings?.Employee}
+      />
     </div>
   );
 }
