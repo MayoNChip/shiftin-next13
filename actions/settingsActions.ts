@@ -1,6 +1,6 @@
 "use server";
 
-import { ShiftTypeNoId } from "@/app/settings/page";
+import { AddShiftFormSchema } from "@/app/settings/SettingsShiftsStep";
 import { ShiftTypeInterface } from "@/commonTypes";
 import { prisma } from "@/lib/prisma";
 import { ShiftType, UserToWorkDay, WorkDay } from "@prisma/client";
@@ -112,7 +112,9 @@ export const getWorkDays = async ({
   }
 };
 
-export const addShiftType = async (data: ShiftTypeNoId) => {
+export const addShiftType = async (
+  data: z.infer<typeof AddShiftFormSchema>
+) => {
   "use server";
   try {
     const shiftSchema = z.object({
@@ -123,8 +125,6 @@ export const addShiftType = async (data: ShiftTypeNoId) => {
       endTime: z.date(),
       userId: z.string(),
     });
-    // if (!shiftSchema.parse(data))
-    //   return { success: false, error: "Invalid data" };
     const { shiftType, endTime, startTime, userId } = shiftSchema.parse(data);
     console.log("userID from add shiftType", userId);
     const res = await prisma.shiftType.create({

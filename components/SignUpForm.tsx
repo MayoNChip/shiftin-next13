@@ -39,7 +39,7 @@ export function SignUpForm() {
     if (userId) {
       toast({
         title: "User created successfully",
-        description: <div>You're being redirected to the home page</div>,
+        description: <div>You&apos;re being redirected to the home page</div>,
       });
       signIn(
         "credentials",

@@ -112,7 +112,7 @@ export function SignInForm() {
             Sign in with Google
           </Button>
           <p className="text-sm text-center">
-            Don't have an account yet?{" "}
+            Don&apos;t have an account yet?{" "}
             <Link href="/signup" className="underline text-primary">
               Sign up
             </Link>

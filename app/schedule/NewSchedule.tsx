@@ -26,8 +26,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import useSchedule from "@/utils/useSchedule";
-import { data } from "autoprefixer";
 
 type Props = {
   workDays?: (UserToWorkDay & { workDay: WorkDay })[];
@@ -51,7 +49,6 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
   const [active, setActive] = useState<[string, string]>();
   const [removeFromShift, setRemoveFromShift] = useState<ShiftTypeT>();
 
-  const { getShiftById } = useSchedule();
   const form = useForm<shiftSchedule[]>({
     resolver: zodResolver(ShiftSchema),
     defaultValues: [
@@ -201,14 +198,14 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
                                 /> */}
                                 <AlertDialog>
                                   <AlertDialogTrigger
-                                    onClick={() =>
-                                      setRemoveFromShift(
-                                        getShiftById(
-                                          shiftTypes,
-                                          shift.shiftTypeId
-                                        )
-                                      )
-                                    }
+                                  // onClick={() =>
+                                  //   setRemoveFromShift(
+                                  //     getShiftById(
+                                  //       shiftTypes,
+                                  //       shift.shiftTypeId
+                                  //     )
+                                  //   )
+                                  // }
                                   >
                                     <TiDelete className="w-4 h-4 rounded-full absolute cursor-pointer justify-center items-center top-1 right-0 bg-primary flex" />
                                   </AlertDialogTrigger>
@@ -230,7 +227,7 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
                                           )[0].firstName
                                         }{" "}
                                         will be removed from{" "}
-                                        {getShiftDetails({ shiftType: st.id })}
+                                        {/* {getShiftDetails({ shiftType: st.id })} */}
                                         shift on {day.workDay.day}
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>

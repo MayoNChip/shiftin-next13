@@ -13,7 +13,6 @@ import React from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
-import { ShiftType } from "@prisma/client";
 import {
   Form,
   FormControl,
@@ -28,9 +27,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "./ui/use-toast";
 import { createEmployee } from "@/actions/teamActions";
-// import { addUserToShift } from "@/actions/scheduleActions";
 import { useSession } from "next-auth/react";
 import { ShiftTypeT } from "@/app/settings/SettingsShiftsStep";
+import { ShiftType } from "@prisma/client";
 
 interface Props {
   isOpen: boolean;
@@ -44,20 +43,28 @@ interface newUserType {
   roles: ShiftType["shiftType"][];
 }
 
-// interface CreateEmployee
+const FormSchema = z.object({
+  firstName: z.string().min(2),
+  lastName: z.string().min(2),
+  roles: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one item.",
+  }),
+});
 
 function AddEmployeeModal({ isOpen, setIsModalOpen, shiftTypes }: Props) {
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      roles: [],
+    },
+  });
   const handleClose = () => {
     setIsModalOpen(false);
   };
   console.log("shift types", shiftTypes);
   const { data: session } = useSession();
-
-  // const [newUserDetails, setNewUserDetails] = React.useState<newUserType>({
-  // 	firstName: "",
-  // 	lastName: "",
-  // 	canWorkShiftTypes: 1,
-  // });
 
   if (!session || !session.user) {
     return (
@@ -68,23 +75,6 @@ function AddEmployeeModal({ isOpen, setIsModalOpen, shiftTypes }: Props) {
   }
 
   console.log(session);
-
-  const FormSchema = z.object({
-    firstName: z.string().min(2),
-    lastName: z.string().min(2),
-    roles: z.array(z.string()).refine((value) => value.some((item) => item), {
-      message: "You have to select at least one item.",
-    }),
-  });
-
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      roles: [],
-    },
-  });
 
   // const handleCreateEmployee = (
   // 	e: React.MouseEvent<HTMLButtonElement, MouseEvent>
