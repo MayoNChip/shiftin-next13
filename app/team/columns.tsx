@@ -2,7 +2,6 @@
 
 import { Prisma, ShiftType } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { ShiftTypeNoId } from "../settings/page";
 import { ShiftTypeT } from "../settings/SettingsShiftsStep";
 
 type EmployeeWithShiftTypes = Prisma.EmployeeGetPayload<{

@@ -35,7 +35,7 @@ import Loader from "@/components/ui/loader";
 
 export type ShiftTypeT = { shiftType: ShiftType } & shiftTypeToUser;
 
-const FormSchema = z.object({
+export const AddShiftFormSchema = z.object({
   shiftType: z.string().min(1),
   startTime: z.date(),
   endTime: z.date(),
@@ -60,8 +60,8 @@ function SettingsShiftsStep({ shiftTypes }: { shiftTypes: ShiftTypeT[] }) {
     form.setValue("userId", session?.user?.id);
   }, [shiftTypes]);
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<z.infer<typeof AddShiftFormSchema>>({
+    resolver: zodResolver(AddShiftFormSchema),
     defaultValues: {
       shiftType: "",
       startTime: new Date(),
@@ -76,7 +76,7 @@ function SettingsShiftsStep({ shiftTypes }: { shiftTypes: ShiftTypeT[] }) {
     form.setValue("endTime", endDate);
   }, [startDate, endDate]);
 
-  const handleAddShift = async (values: z.infer<typeof FormSchema>) => {
+  const handleAddShift = async (values: z.infer<typeof AddShiftFormSchema>) => {
     if (!session?.user?.id) {
       return toast({
         variant: "destructive",
