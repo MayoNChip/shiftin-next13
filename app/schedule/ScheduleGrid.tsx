@@ -1,5 +1,13 @@
 "use client";
 
+import { cn } from "@/utils";
+import {
+  DndContext,
+  DragEndEvent,
+  DragStartEvent,
+  useDraggable,
+  useDroppable,
+} from "@dnd-kit/core";
 import {
   Employee,
   ShiftType,
@@ -8,25 +16,48 @@ import {
   UserToWorkDay,
   WorkDay,
 } from "@prisma/client";
-import React from "react";
+import React, { useState } from "react";
+import EmployeeDraggable from "./_components/EmployeeDraggable";
+import ShiftDroppable from "./_components/ShiftDroppable";
 
+export type UserShiftType = shiftTypeToUser & { shiftType: ShiftType };
+export type UserWorkDay = UserToWorkDay & { workDay: WorkDay };
 type Props = {
-  shiftTypes: (shiftTypeToUser & { shiftType: ShiftType })[] | undefined;
-  userWorkDays: (UserToWorkDay & { workDay: WorkDay })[] | undefined;
+  shiftTypes: UserShiftType[];
+  userWorkDays: UserWorkDay[];
   userEmployees:
     | ({ shiftTypeToEmployee: ShiftTypeToEmployee[] } & Employee)[]
     | undefined;
 };
 
-async function ScheduleGrid({
-  shiftTypes,
-  userWorkDays,
-  userEmployees,
-}: Props) {
-  if (!userWorkDays || !shiftTypes) return null;
+function ScheduleGrid({ shiftTypes, userWorkDays, userEmployees }: Props) {
+  const [isDropped, setIsDropped] = useState(false);
+  const [schedule, setSchedule] = useState<
+    { shiftTypeId: string; workDayId: string; employeeId: string }[]
+  >([]);
+
+  // const draggableMarkup = <Draggable>Drag me</Draggable>;
+
+  function handleDragEnd(event: DragEndEvent) {
+    if (event.over) {
+      console.log(event);
+      schedule.push({
+        shiftTypeId: event.over.id.toString().split("-")[0],
+        workDayId: event.over.id.toString().split("-")[1],
+        employeeId: event.active.id.toString(),
+      });
+      setIsDropped(true);
+    }
+  }
+
+  console.log("schedule", schedule);
+
+  function handleDragStart(event: DragStartEvent) {
+    console.log("DRAG START", event);
+  }
 
   return (
-    <>
+    <DndContext onDragEnd={handleDragEnd}>
       <div
         className={`grid grid-cols-${userWorkDays.length + 1} grid-rows-${
           shiftTypes.length
@@ -60,32 +91,23 @@ async function ScheduleGrid({
           userWorkDays
             .filter((wd) => wd.active)
             .map((wd, colIndex) => (
-              <div
-                key={`${wd.id}-${st.id}`}
-                className="border-2 border-secondary rounded flex flex-col items-center py-2"
-                style={{
-                  gridColumnStart: colIndex + 2,
-                  gridRowStart: rowIndex + 2,
-                }}
-              >
-                {`${st.shiftType.shiftType}`}
-              </div>
+              <ShiftDroppable
+                key={`${st.id}${wd.workDayId}`}
+                workDay={wd}
+                shiftType={st}
+                rowIndex={rowIndex}
+                colIndex={colIndex}
+                isDropped={isDropped}
+              />
             ))
         )}
       </div>
       <div className="flex">
         {userEmployees?.map((employee) => {
-          return (
-            <div
-              key={employee.id}
-              className="bg-primary text-white p-2 m-2 rounded cursor-grab"
-            >
-              {employee.firstName} {employee.lastName}
-            </div>
-          );
+          return <EmployeeDraggable {...employee} key={employee.id} />;
         })}
       </div>
-    </>
+    </DndContext>
   );
 }
 

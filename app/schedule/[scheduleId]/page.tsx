@@ -27,6 +27,8 @@ export default async function Schedule({
     where: { shiftTypeToUser: { some: { userId: session?.user?.id } } },
   });
 
+  if (!userShiftTypes || !userScheduleSettings) return null;
+
   console.log(
     "user work days and shift types",
     userScheduleSettings,
