@@ -29,7 +29,7 @@ function ShiftDroppable({
       key={`${workDay.id}-${shiftType.id}`}
       className={cn(
         isOver && "bg-secondary",
-        "border-2 border-secondary rounded flex flex-col items-center py-2"
+        "border-2 border-secondary rounded flex flex-col items-center py-2 h-48"
       )}
       style={{
         gridColumnStart: colIndex + 2,

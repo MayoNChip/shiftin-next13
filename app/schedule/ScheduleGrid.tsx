@@ -59,12 +59,12 @@ function ScheduleGrid({ shiftTypes, userWorkDays, userEmployees }: Props) {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div
-        className={`grid grid-cols-${userWorkDays.length + 1} grid-rows-${
+        className={`grid grid-cols-[fit-content(500px),auto] grid-cols-${userWorkDays.length + 1} grid-rows-${
           shiftTypes.length
         } w-2/3`}
       >
-        <div className="col-start-1 py-2 border-2 border-secondary whitespace-nowrap my-auto">
-          <h1> Shift Types / Work Days</h1>
+        <div className="col-start-1 py-2 border-2 px-2 border-secondary whitespace-nowrap my-auto min-h-[50px]">
+          <h1 className="font-extralight text-sm"> Shift Types / Work Days</h1>
         </div>
         {userWorkDays
           .filter((wd) => wd.active)
@@ -74,17 +74,19 @@ function ScheduleGrid({ shiftTypes, userWorkDays, userEmployees }: Props) {
               key={workDay.id}
               className={`col-start-${
                 i + 2
-              } border-2 border-secondary h-fit px-4 py-2`}
+              } border-2 border-secondary h-fit px-4 py-2 min-h-[50px] flex flex-col items-center justify-center `}
             >
-              {workDay.workDay.day}
+              <h2 className="font-extralight text-sm">{workDay.workDay.day}</h2>
             </div>
           ))}
         {shiftTypes.map((shiftType) => (
           <div
             key={shiftType.id}
-            className="border-2 border-secondary col-start-1 p-10 flex justify-center"
+            className="border-2 border-secondary col-start-1 p-4 flex justify-center py-auto  items-center "
           >
-            {shiftType.shiftType.shiftType}
+            <h2 className="font-extralight text-sm">
+              {shiftType.shiftType.shiftType}
+            </h2>
           </div>
         ))}
         {shiftTypes.map((st, rowIndex) =>

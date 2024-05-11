@@ -14,7 +14,7 @@ function AddEmployee({ shiftTypes }: { shiftTypes: ShiftTypeT[] }) {
   return (
     <div className="self-center">
       <Button
-        className="flex items-center self-center px-4 py-2 my-6 rounded w-fit"
+        className="flex items-center self-center px-4 py-2 my-6 w-fit"
         onClick={() => {
           setIsModalOpen(true);
           // 	//   employeeMutation.mutate({ firstName: "Ido", lastName: "Cohen" });

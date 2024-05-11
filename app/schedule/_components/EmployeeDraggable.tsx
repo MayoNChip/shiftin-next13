@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useDraggable } from "@dnd-kit/core";
 import { Employee } from "@prisma/client";
 
@@ -20,18 +21,18 @@ function EmployeeDraggable({ id, firstName, lastName, userId }: Employee) {
     : undefined;
 
   return (
-    <div
+    <Button
       {...attributes}
       {...listeners}
       style={style}
       ref={setNodeRef}
       id={id}
-      className={`bg-primary text-white p-2 m-2 rounded cursor-grab`}
+      className={`p-2 m-2 cursor-grab`}
     >
       <h1>
         {firstName} {lastName}
       </h1>
-    </div>
+    </Button>
   );
 }
 

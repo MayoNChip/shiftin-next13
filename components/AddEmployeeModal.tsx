@@ -140,7 +140,7 @@ function AddEmployeeModal({ isOpen, setIsModalOpen, shiftTypes }: Props) {
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-2xl text-teal-700 text-opacity-50">
+            <DialogTitle className="text-2xl text-opacity-50">
               Add Employees
             </DialogTitle>
           </DialogHeader>
