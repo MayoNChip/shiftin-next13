@@ -17,7 +17,9 @@ type Props = {
 function MyDialog({ title, children, buttonTitle }: Props) {
   return (
     <Dialog>
-      <DialogTrigger>{/* <Button>{buttonTitle}</Button> */}</DialogTrigger>
+      <DialogTrigger>
+        <Button>{buttonTitle}</Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
