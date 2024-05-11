@@ -19,14 +19,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // const user = {
-        // 	id: "1",
-        // 	name: "Admin",
-        // 	email: "admin@admin.com",
-        // 	configured: true,
-        // };
-        console.log("user details", credentials);
-        // return user;
         const user = await prisma.user.findUnique({
           where: {
             email: credentials?.email.toLowerCase(),
@@ -37,19 +29,6 @@ export const authOptions: NextAuthOptions = {
             userToWorkDay: true,
           },
         });
-        console.log("user found", user);
-        // if (!user) return null;
-        // if (user.password !== credentials?.password) return null;
-
-        // const user = await prisma.user.findUnique({
-        // 	where: {
-        // 		email: credentials?.email,
-        // 	},
-        // 	include: {
-        // 		posts: true,
-        // 	},
-        // }
-
         return user;
       },
     }),
@@ -67,15 +46,15 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    // async redirect({ url, baseUrl }) {
-    //   console.log("redirect", url, baseUrl);
-    //   if (url.startsWith("/")) return `${baseUrl}${url}`;
-    //   // Allows callback URLs on the same origin
-    //   else if (new URL(url).origin === baseUrl) {
-    //     return url;
-    //   }
-    //   return baseUrl;
-    // },
+    async redirect({ url, baseUrl }) {
+      console.log("redirect", url, baseUrl);
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+      return baseUrl;
+    },
     async signIn({ user, profile, account }) {
       if (account?.provider === "google") {
         //check if user is in your database
@@ -111,7 +90,6 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async session({ session, user }) {
-      console.log("user from sign in", user);
       const userData = await prisma.user.findUnique({
         where: {
           email: session.user?.email!,
