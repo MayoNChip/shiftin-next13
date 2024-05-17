@@ -164,16 +164,20 @@ export const setUserConfigured = async (userId?: string) => {
 };
 
 export const getUserSettings = async (userId?: string) => {
-  if (!userId) return;
-  return await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      shifts: true,
-      Employee: { include: { shiftTypeToEmployee: true } },
-      userToWorkDay: { include: { workDay: true } },
-      shiftTypes: { include: { shiftType: true } },
-    },
-  });
+  try {
+    if (!userId) return;
+    return await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        shifts: true,
+        Employee: { include: { shiftTypeToEmployee: true } },
+        userToWorkDay: { include: { workDay: true } },
+        shiftTypes: { include: { shiftType: true } },
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const getEmployees = async (userId: string) => {
