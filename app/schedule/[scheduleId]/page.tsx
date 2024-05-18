@@ -46,6 +46,7 @@ export default async function Schedule({
         workDays={userSettings?.userToWorkDay}
       /> */}
       <ScheduleGrid
+        scheduleId={scheduleId}
         userWorkDays={userScheduleSettings?.userToWorkDay}
         shiftTypes={userScheduleSettings?.shiftTypes}
         userEmployees={userScheduleSettings?.Employee}

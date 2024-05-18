@@ -20,10 +20,12 @@ import React, { useState } from "react";
 import EmployeeDraggable from "./_components/EmployeeDraggable";
 import ShiftDroppable from "./_components/ShiftDroppable";
 import { Button } from "@/components/ui/button";
+import { updateSchedule } from "@/actions/scheduleActions";
 
 export type UserShiftType = shiftTypeToUser & { shiftType: ShiftType };
 export type UserWorkDay = UserToWorkDay & { workDay: WorkDay };
 type Props = {
+  scheduleId: string;
   shiftTypes: UserShiftType[];
   userWorkDays: UserWorkDay[];
   userEmployees:
@@ -31,7 +33,12 @@ type Props = {
     | undefined;
 };
 
-function ScheduleGrid({ shiftTypes, userWorkDays, userEmployees }: Props) {
+function ScheduleGrid({
+  shiftTypes,
+  userWorkDays,
+  userEmployees,
+  scheduleId,
+}: Props) {
   const [isDropped, setIsDropped] = useState(false);
   const [schedule, setSchedule] = useState<
     { shiftTypeId: string; workDayId: string; employeeId: string }[]
@@ -68,6 +75,13 @@ function ScheduleGrid({ shiftTypes, userWorkDays, userEmployees }: Props) {
       setIsDropped(true);
     }
   }
+
+  const handleScheduleSubmit = () => {
+    const res = updateSchedule({ schedule: schedule, scheduleId });
+    console.log("schedule", schedule);
+    setIsDropped(false);
+    setSchedule([]);
+  };
 
   // console.log("schedule", schedule);
 
@@ -130,6 +144,9 @@ function ScheduleGrid({ shiftTypes, userWorkDays, userEmployees }: Props) {
           return <EmployeeDraggable {...employee} key={employee.id} />;
         })}
       </div>
+      <Button variant="outline" onClick={handleScheduleSubmit}>
+        Update Schedule
+      </Button>
     </DndContext>
   );
 }
