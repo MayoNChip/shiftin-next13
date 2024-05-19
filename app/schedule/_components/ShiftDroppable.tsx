@@ -49,7 +49,7 @@ function ShiftDroppable({
     data: { workDay, shiftType },
   });
 
-  console.log("shifts", shiftEmployees);
+  // console.log("shifts", shiftEmployees);
 
   return (
     <div

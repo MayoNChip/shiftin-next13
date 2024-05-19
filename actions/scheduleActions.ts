@@ -45,19 +45,48 @@ export const createNewSchedule = async ({
       data: { userId, startDate, endDate },
     });
 
-    const numberOfDays =
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+    const workDays = await prisma.userToWorkDay.findMany({
+      where: {
+        userId,
+      },
+    });
 
-    for (let i = 0; i < numberOfDays; i++) {
-      await prisma.shift.create({
-        data: {
-          shiftToSchedule: {
-            connect: {
-              id: res.id,
+    const shiftTypes = await prisma.shiftTypeToUser.findMany({
+      where: {
+        userId,
+      },
+    });
+    // console.log("creating shifts after creating schedule", res.id);
+    // for (const workDay of workDays) {
+    //   for (const shiftType of shiftTypes) {
+    //     await prisma.shift.create({
+    //       data: {
+    //         shiftToSchedule: {
+    //           connect: {
+    //             id: res.id,
+    //           },
+    //         },
+    //         shiftTypeId: shiftType.id,
+    //         workDayId: workDay.id,
+    //       },
+    //     });
+    //   }
+    // }
+
+    for (const shift of shiftTypes) {
+      for (const workDay of workDays) {
+        await prisma.shift.create({
+          data: {
+            shiftToSchedule: {
+              create: {
+                scheduleId: res.id,
+              },
             },
+            shiftTypeId: shift.id,
+            workDayId: workDay.id,
           },
-        },
-      });
+        });
+      }
     }
 
     revalidatePath("/schedule");
@@ -88,49 +117,46 @@ export const getScheduleById = async (scheduleId: string) => {
 export const updateSchedule = async ({
   schedule,
   scheduleId,
+  userId,
 }: {
   schedule: { shiftTypeId: string; workDayId: string; employeeId: string }[];
   scheduleId: string;
+  userId: string;
 }) => {
   "use server";
   try {
-    const shifts = await prisma.shift.findMany({
-      where: {
-        shiftToSchedule: {
-          every: {
-            scheduleId: scheduleId,
+    schedule.forEach(async (shift) => {
+      await prisma.shift.update({
+        where: {
+          id: shift.shiftTypeId,
+          AND: {
+            workDayId: shift.workDayId,
           },
         },
-      },
-    });
-    schedule.forEach(async (shift) => {
-      await prisma.shift.create({
         data: {
-          shiftToSchedule: {
-            connect: {
-              id: scheduleId,
-            },
-          },
-
           employees: {
-            connect: {
-              id: shift.employeeId,
+            create: {
+              employee: {
+                connect: {
+                  id: shift.employeeId,
+                },
+              },
             },
           },
         },
       });
     });
 
-    const shiftsToSchedule = schedule.map((shift) => {
-      return {
-        scheduleId: scheduleId,
-        shiftId: shift.shiftTypeId,
-      };
-    });
+    // const shiftsToSchedule = schedule.map((shift) => {
+    //   return {
+    //     scheduleId: scheduleId,
+    //     shiftId: shift.shiftTypeId,
+    //   };
+    // });
 
-    await prisma.shiftToSchedule.createMany({
-      data: shiftsToSchedule,
-    });
+    // await prisma.shiftToSchedule.({
+    //   data: shiftsToSchedule,
+    // });
   } catch (error) {
     console.log("updating schedule error =>", error);
   }

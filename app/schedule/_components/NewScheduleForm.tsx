@@ -17,7 +17,11 @@ const NewScheduleSchema = z.object({
   endDate: z.date(),
 });
 
-function NewScheduleForm() {
+function NewScheduleForm({
+  setIsOpen,
+}: {
+  setIsOpen: (isOpen: boolean) => void;
+}) {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const { data: session } = useSession();
@@ -40,6 +44,7 @@ function NewScheduleForm() {
         description: "Redirecting...",
       });
       router.push(`/schedule/${scheduleRes.data}`);
+      setIsOpen(false);
     }
 
     // // if (scheduleRes?.id) {
@@ -59,7 +64,7 @@ function NewScheduleForm() {
   useMemo(() => {
     form.setValue("startDate", startDate);
     form.setValue("endDate", endDate);
-  }, [startDate, endDate]);
+  }, [startDate, endDate, form]);
 
   return (
     <Form {...form}>

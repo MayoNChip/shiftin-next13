@@ -12,13 +12,15 @@ type Props = {
   title: string;
   buttonTitle: string;
   children: ReactNode;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
 };
 
-function MyDialog({ title, children, buttonTitle }: Props) {
+function MyDialog({ title, children, buttonTitle, isOpen, setIsOpen }: Props) {
   return (
-    <Dialog>
+    <Dialog open={isOpen}>
       <DialogTrigger>
-        <Button>{buttonTitle}</Button>
+        <Button onClick={() => setIsOpen(true)}>{buttonTitle}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

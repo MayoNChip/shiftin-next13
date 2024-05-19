@@ -1,13 +1,6 @@
 "use client";
 
-import { cn } from "@/utils";
-import {
-  DndContext,
-  DragEndEvent,
-  DragStartEvent,
-  useDraggable,
-  useDroppable,
-} from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import {
   Employee,
   ShiftType,
@@ -21,6 +14,8 @@ import EmployeeDraggable from "./_components/EmployeeDraggable";
 import ShiftDroppable from "./_components/ShiftDroppable";
 import { Button } from "@/components/ui/button";
 import { updateSchedule } from "@/actions/scheduleActions";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export type UserShiftType = shiftTypeToUser & { shiftType: ShiftType };
 export type UserWorkDay = UserToWorkDay & { workDay: WorkDay };
@@ -43,51 +38,48 @@ function ScheduleGrid({
   const [schedule, setSchedule] = useState<
     { shiftTypeId: string; workDayId: string; employeeId: string }[]
   >([]);
-  const filtered = (st: UserShiftType, wd: UserWorkDay) => {
-    const res = schedule?.filter((shift) => {
-      console.log(
-        "params",
-        st.id,
-        wd.id,
-        "shift",
-        shift.shiftTypeId,
-        shift.workDayId,
-        shift.shiftTypeId === st.id,
-        shift.workDayId === wd.id
-      );
-      return shift.shiftTypeId === st.id && shift.workDayId === wd.id;
-    });
-    return res;
-  };
+  const { data: session } = useSession();
+
+  const filtered = (st: UserShiftType, wd: UserWorkDay) =>
+    schedule?.filter(
+      (shift) => shift.shiftTypeId === st.id && shift.workDayId === wd.id
+    );
 
   // const draggableMarkup = <Draggable>Drag me</Draggable>;
 
   function handleDragEnd(event: DragEndEvent) {
     if (event.over) {
-      console.log(event);
+      // console.log(event);
       const newShift = {
         workDayId: event.over.data.current?.workDay.id.toString(),
         shiftTypeId: event.over.data.current?.shiftType.id.toString(),
         employeeId: event.active.id.toString(),
       };
-      console.log("newShift", newShift);
+      // console.log("newShift", newShift);
       setSchedule([...schedule, newShift]);
       setIsDropped(true);
     }
   }
 
   const handleScheduleSubmit = () => {
-    const res = updateSchedule({ schedule: schedule, scheduleId });
-    console.log("schedule", schedule);
+    if (!session?.user?.id) {
+      redirect("/signin");
+    }
+    const res = updateSchedule({
+      schedule: schedule,
+      scheduleId,
+      userId: session?.user?.id,
+    });
+    // console.log("schedule", schedule);
     setIsDropped(false);
     setSchedule([]);
   };
 
   // console.log("schedule", schedule);
 
-  function handleDragStart(event: DragStartEvent) {
-    console.log("DRAG START", event);
-  }
+  // function handleDragStart(event: DragStartEvent) {
+  //   console.log("DRAG START", event);
+  // }
 
   return (
     <DndContext onDragEnd={handleDragEnd}>

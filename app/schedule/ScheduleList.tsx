@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Schedule } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import NewScheduleForm from "./_components/NewScheduleForm";
+import { useState } from "react";
 
 function ScheduleList({ openedSchedules }: { openedSchedules: Schedule[] }) {
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="flex flex-col items-center">
@@ -27,8 +29,13 @@ function ScheduleList({ openedSchedules }: { openedSchedules: Schedule[] }) {
           </div>
         );
       })}
-      <MyDialog title="Create New Schedule" buttonTitle="New Schedule">
-        <NewScheduleForm />
+      <MyDialog
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        title="Create New Schedule"
+        buttonTitle="New Schedule"
+      >
+        <NewScheduleForm setIsOpen={setIsOpen} />
       </MyDialog>
       {/* <Button onClick={handleCreateSchedule}>New Schedule</Button> */}
     </div>

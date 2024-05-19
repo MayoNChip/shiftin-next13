@@ -6,9 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -31,7 +31,7 @@ model ShiftType {
   shiftType           String                @unique
   startTime           DateTime
   endTime             DateTime
-  shift               Shift[]
+  // shift               Shift[]
   // employee            Employee[]
   shiftTypesToEmplyee ShiftTypeToEmployee[]
   shiftTypeToUser     shiftTypeToUser[]
@@ -43,6 +43,7 @@ model shiftTypeToUser {
   userId      String
   shiftType   ShiftType @relation(fields: [shiftTypeId], references: [id])
   shiftTypeId Int
+  shifts      Shift[]
 }
 
 model shiftsToUser {
@@ -62,22 +63,22 @@ model ShiftTypeToEmployee {
 }
 
 model Shift {
-  id           String           @id @default(cuid())
-  shiftType    ShiftType?       @relation(fields: [shiftTypeId], references: [id])
-  shiftTypeId  Int
+  id              String            @id @default(cuid())
+  shiftType       shiftTypeToUser?  @relation(fields: [shiftTypeId], references: [id])
+  shiftTypeId     String
   // user         User?            @relation(fields: [userId], references: [id])
   // userId       String
-  workDay      WorkDay?         @relation(fields: [workDayId], references: [id])
-  workDayId    Int?
-  employees    EmployeeShifts[]
-  shiftsToUser shiftsToUser[]
+  workDay         UserToWorkDay?    @relation(fields: [workDayId], references: [id])
+  workDayId       String?
+  employees       EmployeeShifts[]
+  shiftsToUser    shiftsToUser[]
   shiftToSchedule ShiftToSchedule[]
 }
 
 model WorkDay {
   id            Int             @id @default(autoincrement())
   day           String          @unique
-  shifts        Shift[]
+  // shifts        Shift[]
   // week   Int
   // month  String
   userToWorkDay UserToWorkDay[]
@@ -90,6 +91,7 @@ model UserToWorkDay {
   workDay   WorkDay @relation(fields: [workDayId], references: [id])
   workDayId Int
   active    Boolean
+  shift     Shift[]
 }
 
 model Employee {
@@ -115,20 +117,20 @@ model EmployeeShifts {
 }
 
 model Schedule {
-  id       String  @id @default(cuid())
+  id        String            @id @default(cuid())
   startDate DateTime
-  endDate DateTime
-  user     User    @relation(fields: [userId], references: [id])
-  userId   String
-  shift    ShiftToSchedule[]
-  finished Boolean @default(false)
-  updatedAt DateTime @updatedAt
+  endDate   DateTime
+  user      User              @relation(fields: [userId], references: [id])
+  userId    String
+  shift     ShiftToSchedule[]
+  finished  Boolean           @default(false)
+  updatedAt DateTime          @updatedAt
 }
 
 model ShiftToSchedule {
-  id String @id @default(cuid())
-  shift Shift @relation(fields: [shiftId], references: [id])
-  shiftId String
-  schedule Schedule @relation(fields: [scheduleId], references: [id])
+  id         String   @id @default(cuid())
+  shift      Shift    @relation(fields: [shiftId], references: [id])
+  shiftId    String
+  schedule   Schedule @relation(fields: [scheduleId], references: [id])
   scheduleId String
 }

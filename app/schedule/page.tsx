@@ -1,13 +1,8 @@
-import { getUserSettings } from "@/actions/settingsActions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { cn } from "@/utils";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import React from "react";
-import NewSchedule from "./NewSchedule";
-import { Button } from "@/components/ui/button";
-import { createNewSchedule } from "@/actions/scheduleActions";
 import ScheduleList from "./ScheduleList";
 
 async function Schedule() {
@@ -17,6 +12,9 @@ async function Schedule() {
     where: {
       userId: session?.user?.id,
       finished: false,
+    },
+    include: {
+      shift: true,
     },
   });
 
@@ -28,6 +26,7 @@ async function Schedule() {
     redirect("/settings");
   }
 
+  console.log("schedule", openedSchedules);
   // return (
   //   <div>
   //     <NewSchedule

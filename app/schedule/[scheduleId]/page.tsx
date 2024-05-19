@@ -21,6 +21,7 @@ export default async function Schedule({
       userToWorkDay: { include: { workDay: true } },
       shiftTypes: { include: { shiftType: true } },
       Employee: { include: { shiftTypeToEmployee: true } },
+      shifts: true,
     },
   });
   const userShiftTypes = await prisma.shiftType.findMany({
@@ -30,9 +31,9 @@ export default async function Schedule({
   if (!userShiftTypes || !userScheduleSettings) return null;
 
   console.log(
-    "user work days and shift types",
-    userScheduleSettings,
-    userShiftTypes
+    "schedule",
+    schedule?.shift
+    // userShiftTypes
   );
 
   return (
