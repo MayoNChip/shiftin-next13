@@ -7,7 +7,7 @@ import {
   WorkDay,
 } from "@prisma/client";
 import { ShiftTypeT } from "../settings/SettingsShiftsStep";
-import { DragEvent, useRef, useState } from "react";
+import { DragEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -45,9 +45,7 @@ type shiftSchedule = z.infer<typeof ShiftSchema>;
 function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
   const { data: session } = useSession();
   const [shiftSchedule, setShiftSchedule] = useState<shiftSchedule[]>([]);
-  const dragConstraintsRef = useRef(null);
   const [active, setActive] = useState<[string, string]>();
-  const [removeFromShift, setRemoveFromShift] = useState<ShiftTypeT>();
 
   const form = useForm<shiftSchedule[]>({
     resolver: zodResolver(ShiftSchema),
@@ -56,20 +54,20 @@ function NewSchedule({ shiftTypes, workDays, userEmployees }: Props) {
     ],
   });
 
-  const getShiftDetails = (
-    data: { shiftType: string } | { workDay: string }
-  ) => {
-    if ("shiftType" in data) {
-      return shiftTypes?.filter((shift) => shift.id === data.shiftType)[0];
-    } else {
-      return workDays?.filter((workDay) => workDay.id === data.workDay)[0];
-    }
-  };
+  // const getShiftDetails = (
+  //   data: { shiftType: string } | { workDay: string }
+  // ) => {
+  //   if ("shiftType" in data) {
+  //     return shiftTypes?.filter((shift) => shift.id === data.shiftType)[0];
+  //   } else {
+  //     return workDays?.filter((workDay) => workDay.id === data.workDay)[0];
+  //   }
+  // };
 
-  const onSubmit = (data: shiftSchedule) => {
-    console.log(data);
-    setShiftSchedule([...shiftSchedule, data]);
-  };
+  // const onSubmit = (data: shiftSchedule) => {
+  //   console.log(data);
+  //   setShiftSchedule([...shiftSchedule, data]);
+  // };
 
   const handleDragOver = (
     e: DragEvent<HTMLDivElement>,
