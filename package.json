@@ -3,13 +3,13 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "npx prisma db seed && next dev",
+		"dev": "bun x prisma db seed && next dev",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint"
 	},
 	"prisma": {
-		"seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+		"seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
 	},
 	"dependencies": {
 		"@dnd-kit/core": "^6.1.0",
