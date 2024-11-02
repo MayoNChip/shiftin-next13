@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { Schedule, ShiftToSchedule } from "@prisma/client";
+import { Prisma, Schedule, ShiftToSchedule } from "@prisma/client";
 
 // export const addUserToShift = async (userId?: string, shiftId?: string) => {
 // 	"use server";
@@ -99,12 +99,20 @@ export const createNewSchedule = async ({
   }
 };
 
-export const getScheduleById = async (scheduleId: string) => {
+export const getScheduleById = async (scheduleId: string, userId?: string) => {
   "use server";
   try {
     return await prisma.schedule.findUnique({
-      where: { id: scheduleId },
-      include: { shift: true },
+      where: { id: scheduleId, userId },
+      include: {
+        shift: {
+          include: {
+            shift: {
+              include: { employees: true, shiftType: true, workDay: true },
+            },
+          },
+        },
+      },
     });
   } catch (error) {
     console.log(error);
@@ -113,6 +121,64 @@ export const getScheduleById = async (scheduleId: string) => {
     }
   }
 };
+
+export type ScheduleType = Prisma.UserGetPayload<{
+  select: {
+    Schedule: {
+      include: {
+        shift: {
+          include: {
+            shift: {
+              include: {
+                employees: {
+                  include: {
+                    employee: true;
+                  };
+                };
+                shiftType: true;
+                workDay: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>["Schedule"][0];
+
+export const getScheduleShifts = async (
+  scheduleId: string,
+  userId?: string
+) => {
+  "use server";
+  try {
+    return await prisma.shift.findMany({
+      where: {
+        shiftToSchedule: { some: { scheduleId } },
+        shiftsToUser: { some: { userId } },
+      },
+      include: { employees: { include: { employee: true } } },
+    });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+  }
+};
+
+export type ScheduleShifts =
+  | Prisma.UserGetPayload<{
+      select: {
+        shifts: {
+          include: {
+            shift: { include: { employees: { include: { employee: true } } } };
+          };
+        };
+      };
+    }>["shifts"][0]["shift"][]
+  | null
+  | undefined;
 
 export const updateSchedule = async ({
   schedule,
@@ -125,38 +191,27 @@ export const updateSchedule = async ({
 }) => {
   "use server";
   try {
-    schedule.forEach(async (shift) => {
-      await prisma.shift.update({
-        where: {
-          id: shift.shiftTypeId,
-          AND: {
-            workDayId: shift.workDayId,
-          },
-        },
+    schedule.map(async (shift) => {
+      await prisma.shift.create({
         data: {
+          shiftTypeId: shift.shiftTypeId,
+          workDayId: shift.workDayId,
           employees: {
-            create: {
-              employee: {
-                connect: {
-                  id: shift.employeeId,
-                },
-              },
+            create: { employee: { connect: { id: shift.employeeId } } },
+          },
+          shiftsToUser: {
+            connectOrCreate: { where: { id: userId }, create: { userId } },
+          },
+          shiftToSchedule: {
+            connectOrCreate: {
+              where: { id: scheduleId },
+              create: { scheduleId },
             },
           },
         },
       });
     });
-
-    // const shiftsToSchedule = schedule.map((shift) => {
-    //   return {
-    //     scheduleId: scheduleId,
-    //     shiftId: shift.shiftTypeId,
-    //   };
-    // });
-
-    // await prisma.shiftToSchedule.({
-    //   data: shiftsToSchedule,
-    // });
+    revalidatePath("/schedule/[...scheduleId]", "page");
   } catch (error) {
     console.log("updating schedule error =>", error);
   }

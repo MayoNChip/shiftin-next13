@@ -4,7 +4,14 @@ import { Button } from "@/components/ui/button";
 import { useDraggable } from "@dnd-kit/core";
 import { Employee } from "@prisma/client";
 
-function EmployeeDraggable({ id, firstName, lastName, userId }: Employee) {
+function EmployeeDraggable({
+  id,
+  firstName,
+  lastName,
+  userId,
+}: Partial<Employee>) {
+  if (!id) return <h1>Something went wrong</h1>;
+
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id,
     data: {

@@ -14,7 +14,15 @@ async function Schedule() {
       finished: false,
     },
     include: {
-      shift: true,
+      shift: {
+        include: {
+          shift: {
+            include: {
+              employees: { include: { employee: true } },
+            },
+          },
+        },
+      },
     },
   });
 

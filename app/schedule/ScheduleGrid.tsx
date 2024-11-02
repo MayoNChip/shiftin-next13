@@ -1,6 +1,6 @@
 "use client";
 
-import { DndContext, DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
   Employee,
   ShiftType,
@@ -9,54 +9,72 @@ import {
   UserToWorkDay,
   WorkDay,
 } from "@prisma/client";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import EmployeeDraggable from "./_components/EmployeeDraggable";
 import ShiftDroppable from "./_components/ShiftDroppable";
 import { Button } from "@/components/ui/button";
-import { updateSchedule } from "@/actions/scheduleActions";
+import {
+  ScheduleShifts,
+  ScheduleType,
+  updateSchedule,
+} from "@/actions/scheduleActions";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 
 export type UserShiftType = shiftTypeToUser & { shiftType: ShiftType };
 export type UserWorkDay = UserToWorkDay & { workDay: WorkDay };
+
 type Props = {
   scheduleId: string;
   shiftTypes: UserShiftType[];
   userWorkDays: UserWorkDay[];
-  userEmployees:
-    | ({ shiftTypeToEmployee: ShiftTypeToEmployee[] } & Employee)[]
-    | undefined;
+  userEmployees: (Employee & { shiftTypeToEmployee: ShiftTypeToEmployee[] })[];
+  schedule: ScheduleType | null | undefined;
+  scheduleShifts: ScheduleShifts;
 };
 
 function ScheduleGrid({
+  schedule,
+  scheduleShifts,
+  scheduleId,
   shiftTypes,
   userWorkDays,
   userEmployees,
-  scheduleId,
 }: Props) {
   const [isDropped, setIsDropped] = useState(false);
-  const [schedule, setSchedule] = useState<
+  const [scheduleData, setScheduleData] = useState<
     { shiftTypeId: string; workDayId: string; employeeId: string }[]
   >([]);
   const { data: session } = useSession();
 
   const filtered = (st: UserShiftType, wd: UserWorkDay) =>
-    schedule?.filter(
+    scheduleData?.filter(
       (shift) => shift.shiftTypeId === st.id && shift.workDayId === wd.id
     );
 
   // const draggableMarkup = <Draggable>Drag me</Draggable>;
 
+  useEffect(() => {
+    if (!scheduleShifts) return;
+    const data = scheduleShifts.map((shift) => {
+      return {
+        shiftTypeId: shift.shiftTypeId!,
+        workDayId: shift?.workDayId!,
+        employeeId: shift.employees.filter((e) => e.shiftId === shift.id)[0]
+          .employeeId!,
+      };
+    });
+    setScheduleData(data);
+  }, [schedule]);
+
   function handleDragEnd(event: DragEndEvent) {
     if (event.over) {
-      // console.log(event);
       const newShift = {
         workDayId: event.over.data.current?.workDay.id.toString(),
         shiftTypeId: event.over.data.current?.shiftType.id.toString(),
         employeeId: event.active.id.toString(),
       };
-      // console.log("newShift", newShift);
-      setSchedule([...schedule, newShift]);
+      setScheduleData([...scheduleData, newShift]);
       setIsDropped(true);
     }
   }
@@ -66,21 +84,17 @@ function ScheduleGrid({
       redirect("/signin");
     }
     const res = updateSchedule({
-      schedule: schedule,
+      schedule: scheduleData,
       scheduleId,
       userId: session?.user?.id,
     });
-    // console.log("schedule", schedule);
     setIsDropped(false);
-    setSchedule([]);
   };
-
   // console.log("schedule", schedule);
 
   // function handleDragStart(event: DragStartEvent) {
   //   console.log("DRAG START", event);
   // }
-
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div
@@ -126,7 +140,9 @@ function ScheduleGrid({
                 colIndex={colIndex}
                 isDropped={isDropped}
                 userEmployees={userEmployees}
-                shiftEmployees={filtered(st, wd)}
+                shiftEmployees={scheduleData}
+                scheduleShifts={scheduleShifts}
+                schedule={schedule}
               />
             ))
         )}

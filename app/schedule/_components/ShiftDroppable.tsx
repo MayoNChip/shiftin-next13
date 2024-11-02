@@ -3,6 +3,8 @@ import { UserShiftType, UserWorkDay } from "../ScheduleGrid";
 import { cn } from "@/utils";
 import { Employee, ShiftTypeToEmployee } from "@prisma/client";
 import { Button } from "@/components/ui/button";
+import { ScheduleShifts, ScheduleType } from "@/actions/scheduleActions";
+import EmployeeDraggable from "./EmployeeDraggable";
 
 type Props = {
   workDay: UserWorkDay;
@@ -18,6 +20,8 @@ type Props = {
     workDayId: string;
     employeeId: string;
   }[];
+  schedule: ScheduleType | null | undefined;
+  scheduleShifts: ScheduleShifts;
 };
 
 const colors = [
@@ -36,6 +40,8 @@ const generateRandomeColor = () => {
 };
 
 function ShiftDroppable({
+  scheduleShifts,
+  schedule,
   workDay,
   shiftType,
   rowIndex,
@@ -48,8 +54,6 @@ function ShiftDroppable({
     id: `${workDay.id}-${shiftType.id}`,
     data: { workDay, shiftType },
   });
-
-  // console.log("shifts", shiftEmployees);
 
   return (
     <div
@@ -66,18 +70,39 @@ function ShiftDroppable({
       }}
     >
       <div className="flex items-center flex-col gap-2">
-        {shiftEmployees?.map((employee) => (
-          <Button
-            // className={`bg-${generateRandomeColor()}-500`}
-            key={employee.employeeId}
-          >
-            {userEmployees
-              ?.filter((emp) => {
-                return emp.id === employee.employeeId;
-              })
-              .map((emp) => emp.firstName + " " + emp.lastName)}
-          </Button>
-        ))}
+        {scheduleShifts
+          ?.filter(
+            (s) => s.shiftTypeId === shiftType.id && s.workDayId === workDay.id
+          )
+          .map((shift) => {
+            console.log(
+              "workday from shift",
+              shift.workDayId,
+              "shiftTypeid",
+              shift.shiftTypeId
+            );
+            console.log("workday", workDay.id, "shiftTypeid", shiftType.id);
+            return shift.employees.map((e) => (
+              <EmployeeDraggable
+                key={`{${e.employeeId}}${e.employee?.userId}`}
+                {...e}
+              />
+            ));
+          })}
+        {shiftEmployees
+          ?.filter((s) => {
+            return s.shiftTypeId === shiftType.id && s.workDayId === workDay.id;
+          })
+          .map((employee) => (
+            <Button key={employee.employeeId}>
+              {userEmployees
+                ?.filter((emp) => {
+                  return emp.id === employee.employeeId;
+                })
+                .map((emp) => emp.firstName + " " + emp.lastName)}
+            </Button>
+            // <EmployeeDraggable   key={employee.employeeId} />
+          ))}
       </div>
     </div>
   );

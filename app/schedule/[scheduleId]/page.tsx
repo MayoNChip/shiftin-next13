@@ -1,4 +1,4 @@
-import { getScheduleById } from "@/actions/scheduleActions";
+import { getScheduleById, getScheduleShifts } from "@/actions/scheduleActions";
 import { getUserSettings } from "@/actions/settingsActions";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
@@ -13,7 +13,8 @@ export default async function Schedule({
 }) {
   const { scheduleId } = params;
   const session = await getServerSession(authOptions);
-  const schedule = await getScheduleById(scheduleId);
+  const schedule = await getScheduleById(scheduleId, session?.user?.id);
+  const scheduleShifts = await getScheduleShifts(scheduleId);
   // const userSettings = await getUserSettings(session?.user?.id);
   const userScheduleSettings = await prisma.user.findUnique({
     where: { id: session?.user?.id },
@@ -30,11 +31,17 @@ export default async function Schedule({
 
   if (!userShiftTypes || !userScheduleSettings) return null;
 
-  console.log(
-    "schedule",
-    schedule?.shift
-    // userShiftTypes
-  );
+  // console.log(
+  //   "schedule shifts from db",
+  //   scheduleShifts[0]?.employees[0].employee?.firstName
+  //   // userShiftTypes
+  // );
+
+  // console.log(
+  //   "schedule",
+  //   schedule
+  //   // userShiftTypes
+  // );
 
   return (
     <div className="flex flex-col items-center pt-10">
@@ -51,6 +58,8 @@ export default async function Schedule({
         userWorkDays={userScheduleSettings?.userToWorkDay}
         shiftTypes={userScheduleSettings?.shiftTypes}
         userEmployees={userScheduleSettings?.Employee}
+        schedule={schedule}
+        scheduleShifts={scheduleShifts}
       />
     </div>
   );
